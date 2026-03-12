@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">    
+    <link rel="icon" type="image/png" href="icon.jpg">
+<link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO</title>
     <style>
         :root {
@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Courier New', Courier, monospace;
-            background-image: url('bg-main.jpg');
+            background-image: url('bg-main.png');
             background-size: cover; background-position: center; background-attachment: fixed;
             background-color: #0a0a0a; color: var(--text-light);
             margin: 0; min-height: 100vh;
@@ -213,13 +213,13 @@
         const img = document.getElementById('role-image');
         document.getElementById('role-text').innerText = r.n;
         if(r.t === 'mafia') {
-            img.style.backgroundImage = "url('role-mafia.jpg')";
+            img.style.backgroundImage = "url('role-mafia.png')";
             document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)";
         } else if(r.t === 'undercover') {
-            img.style.backgroundImage = "url('role-undercover.jpg')";
+            img.style.backgroundImage = "url('role-undercover.png')";
             document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)";
         } else {
-            img.style.backgroundImage = "url('role-police.jpg')";
+            img.style.backgroundImage = "url('role-police.png')";
             document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)";
         }
         document.getElementById('role-display').style.display = 'block';
