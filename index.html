@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EL MAFIOSO</title>
+    <title>MAFIA - Immersion Noire Totale</title>
     <style>
         :root {
             --red: #ff3131;
             --blue: #00d2ff;
+            --purple: #bc13fe; /* Couleur spécifique pour l'infiltré */
             --gold: #ffcf1b;
             --border: #333;
             --paper: #e8dcc4;
@@ -17,12 +18,11 @@
 
         body {
             font-family: 'Courier New', Courier, monospace;
-            /* IMAGE D'ARRIÈRE-PLAN GLOBAL */
             background-image: url('bg-main.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            background-color: #0a0a0a; /* Fallback */
+            background-color: #0a0a0a;
             color: var(--text-light);
             margin: 0;
             min-height: 100vh;
@@ -30,9 +30,9 @@
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
+            transition: box-shadow 0.4s ease; /* Pour les halos de couleur */
         }
 
-        /* Superposition sombre pour lisibilité sur l'image de fond */
         body::before {
             content: "";
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -44,11 +44,11 @@
             width: 90%;
             max-width: 400px;
             padding: 30px;
-            background: rgba(21, 21, 21, 0.9); /* Légère transparence */
+            background: rgba(21, 21, 21, 0.9);
             border: 1px solid var(--border);
             box-shadow: 0 0 50px rgba(0,0,0,1);
             position: relative;
-            z-index: 2; /* Au-dessus de la superposition body::before */
+            z-index: 2;
             animation: fadeIn 1s ease;
         }
 
@@ -65,31 +65,29 @@
             text-shadow: 3px 3px 0px #000;
         }
 
-        /* Dossier Confidentiel avec IMAGE */
+        /* Dossier Confidentiel RÉPONSES */
         #role-display {
             background: var(--paper);
             color: var(--text-dark);
-            padding: 0; /* On enlève le padding pour l'image */
+            padding: 0;
             margin: 20px 0;
             box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
             transform: rotate(-1deg);
             border-left: 15px solid #c5b595;
             display: none;
-            overflow: hidden; /* Pour l'image arrondie */
+            overflow: hidden;
             border-radius: 5px;
         }
 
         .role-image-container {
             width: 100%;
-            height: 200px; /* Hauteur de l'illustration */
+            height: 200px;
             background-size: cover;
             background-position: center;
             border-bottom: 2px solid #333;
         }
 
-        .role-data {
-            padding: 20px;
-        }
+        .role-data { padding: 20px; }
 
         .stamp {
             border: 4px solid #7a1a1a;
@@ -104,10 +102,9 @@
             opacity: 0.9;
         }
 
-        /* Inputs & Buttons - Légère transparence pour style */
+        /* Inputs & Buttons */
         input {
-            width: 85%;
-            padding: 15px;
+            width: 85%; padding: 15px;
             background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--border);
             color: var(--red);
@@ -117,8 +114,7 @@
         }
 
         button {
-            width: 100%;
-            padding: 18px;
+            width: 100%; padding: 18px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
             color: #999;
@@ -151,15 +147,11 @@
         /* Ambiance */
         .hidden { display: none !important; }
         .sky-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.6; }
-        
-        /* IMAGE D'ARRIÈRE-PLAN NUIT */
         .night-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('bg-night.jpg');
-            background-size: cover;
-            background-position: center;
-            background-color: #000; /* Fallback */
-            z-index: 1000;
+            background-size: cover; background-position: center;
+            background-color: #000; z-index: 1000;
         }
     </style>
 </head>
@@ -168,7 +160,7 @@
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
 
 <div class="container" id="game-ui">
-    <h1>EL MAFIOSO</h1>
+    <h1>MAFIA</h1>
 
     <div id="setup-screen">
         <div id="player-inputs">
@@ -250,10 +242,15 @@
             music.play().catch(() => {});
         }
 
-        let mCount = Math.max(1, Math.floor(window.playerPool.length / 3));
+        let total = window.playerPool.length;
+        let mCount = Math.max(1, Math.floor(total / 3));
+        let uCount = (total >= 6) ? 1 : 0; // Ajout Infiltré si 6+ joueurs
         let roles = [];
+        
         for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX', t:'mafia'});
-        while(roles.length < window.playerPool.length) roles.push({n:'POLICE', t:'police'});
+        for(let i=0; i<uCount; i++) roles.push({n:'INFILTRÉ', t:'undercover'});
+        while(roles.length < total) roles.push({n:'POLICE', t:'police'});
+        
         roles.sort(() => Math.random() - 0.5);
 
         players = window.playerPool.map((name, i) => ({ name, role: roles[i], alive: true }));
@@ -269,7 +266,7 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-display').style.display = 'none';
         document.getElementById('show-btn').classList.remove('hidden');
-        document.body.style.boxShadow = "none"; // Reset effet couleur
+        document.body.style.boxShadow = "none"; 
     }
 
     function showRole() {
@@ -277,13 +274,15 @@
         const imgContainer = document.getElementById('role-image');
         document.getElementById('role-text').innerText = r.n;
         
-        // ATTRIBUTION DE L'IMAGE CORRESPONDANTE
         if(r.t === 'mafia') {
             imgContainer.style.backgroundImage = "url('role-mafia.jpg')";
-            document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)"; // Halo rouge
+            document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)";
+        } else if(r.t === 'undercover') {
+            imgContainer.style.backgroundImage = "url('role-undercover.jpg')";
+            document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)"; // Halo Violet
         } else {
             imgContainer.style.backgroundImage = "url('role-police.jpg')";
-            document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)"; // Halo bleu
+            document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)";
         }
         
         document.getElementById('role-display').style.display = 'block';
@@ -309,6 +308,14 @@
         await new Promise(r => setTimeout(r, 8000));
         await speak("Mafieux, rendormez-vous.");
 
+        // SÉQUENCE INFILTRÉ (Si présent)
+        if(players.some(p => p.role.t === 'undercover')) {
+            await new Promise(r => setTimeout(r, 3000));
+            await speak("Infiltré, réveille-toi. Regarde qui sont les mafieux.");
+            await new Promise(r => setTimeout(r, 8000));
+            await speak("Infiltré, rendors-toi.");
+        }
+
         document.getElementById('night-overlay').classList.add('hidden');
         document.getElementById('sky-anim').innerText = "☀️";
         await speak("Le jour se lève. Interrogez les suspects.");
@@ -321,7 +328,6 @@
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
             document.getElementById('progress-bar').style.width = (timeLeft / 300) * 100 + "%";
-            
             if (timeLeft <= 0) { clearInterval(timerInterval); speak("Le temps est écoulé. Votez."); }
             timeLeft--;
         }, 1000);
