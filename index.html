@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="icon.jpg">
+    <link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO</title>
     <style>
         :root {
@@ -11,6 +13,7 @@
             --text-dark: #1a1a1a; --text-light: #d0d0d0;
         }
 
+        /* 1. FOND ET POLICE GLOBALE TYPEWRITER */
         body {
             font-family: 'Courier New', Courier, monospace;
             background: #0a0a0a url('bg-main.png') no-repeat center center fixed;
@@ -24,65 +27,98 @@
 
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75); z-index: 1;
+            background: rgba(0, 0, 0, 0.8); z-index: 1;
         }
 
         .container {
             width: 85%; max-width: 380px; padding: 25px;
-            background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border);
-            box-shadow: 0 0 40px rgba(0,0,0,1); position: relative; z-index: 2;
-            border-radius: 12px; text-align: center;
+            background: rgba(15, 15, 15, 0.95); border: 1px solid var(--border);
+            box-shadow: 0 0 60px rgba(0,0,0,1); position: relative; z-index: 2;
+            border-radius: 8px; text-align: center;
         }
 
-        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; }
+        h1 { font-size: 2rem; color: var(--red); letter-spacing: 10px; margin-bottom: 30px; text-transform: uppercase; text-shadow: 2px 2px 0px #000; }
 
         input {
-            width: 90%; padding: 12px; background: rgba(0, 0, 0, 0.7);
+            width: 90%; padding: 14px; background: rgba(0, 0, 0, 0.8);
             border: 1px solid var(--border); color: var(--red);
-            margin-bottom: 8px; border-radius: 4px; text-align: center; font-family: inherit;
+            margin-bottom: 10px; border-radius: 4px; text-align: center; font-family: inherit; font-size: 1rem;
         }
 
         button {
-            width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border); color: #bbb;
-            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit;
+            width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border); color: #aaa;
+            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit; letter-spacing: 2px;
         }
 
-        .btn-main { background: rgba(120, 0, 0, 0.8); color: white; border: 1px solid var(--red); font-weight: bold; }
+        button:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.08); }
+        .btn-main { background: rgba(100, 0, 0, 0.9); color: white; border: 1px solid var(--red); font-weight: bold; }
 
-        #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; font-family: monospace; }
-        .progress-container { width: 100%; height: 6px; background: #111; margin: 10px 0; }
-        #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; }
+        /* 2. NOUVEL ÉCRAN DE RÉVÉLATION "DOSSIER CLASSIFIÉ" */
+        #reveal-screen h2 {
+            font-size: 2rem; color: #fff; margin: 10px 0 20px 0;
+            font-family: 'Courier New', monospace; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 3px;
+        }
 
-        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.6); font-size: 0.8rem; font-weight: bold; }
-        .player-card.dead { opacity: 0.2; text-decoration: line-through; pointer-events: none; }
+        /* Animation Typewriter pour le nom */
+        .typewriter-name {
+            display: inline-block;
+            overflow: hidden;
+            border-right: .15em solid var(--red);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 2s steps(20, end), blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--red) } }
 
         #role-display {
-            background: var(--paper); color: var(--text-dark); padding: 0;
-            margin: 15px 0; box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
-            border-left: 10px solid #c5b595; border-radius: 5px; overflow: hidden;
+            background: var(--paper); color: var(--text-dark);
+            margin: 20px 0; box-shadow: 8px 8px 25px rgba(0,0,0,0.8);
+            transform: rotate(-1.5deg); border-left: 15px solid #c5b595;
+            border-radius: 4px; overflow: hidden; display: none;
+            position: relative;
         }
-        .role-image-container { width: 100%; height: 150px; background-size: cover; background-position: center; }
-        .stamp { border: 3px solid #7a1a1a; color: #7a1a1a; padding: 5px 10px; font-weight: bold; font-size: 1.2rem; transform: rotate(-10deg); display: inline-block; margin: 10px 0; }
+
+        /* Image centrée et cadrée façon photo d'identité scotchée */
+        .role-image-container {
+            width: 140px; height: 140px;
+            background-size: cover; background-position: center;
+            border: 5px solid white; margin: 20px auto 10px auto;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .role-data { padding: 15px 20px; text-align: center; }
+
+        /* Tampon classifié incliné et texturé */
+        .stamp {
+            border: 5px solid #8a2a2a; color: #8a2a2a;
+            padding: 10px 20px; font-weight: bold; font-size: 1.5rem;
+            text-transform: uppercase; display: inline-block;
+            transform: rotate(-12deg); margin: 15px 0;
+            opacity: 0.9;
+        }
+
+        /* Autres styles de jeu */
+        #big-timer { font-size: 4.5rem; color: #fff; margin: 10px 0; font-weight: bold; }
+        .progress-container { width: 100%; height: 6px; background: #111; margin: 15px 0; }
+        #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; }
+        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .player-card { padding: 15px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.9rem; font-weight: bold; }
+        .player-card.dead { opacity: 0.15; text-decoration: line-through; pointer-events: none; }
 
         .hidden { display: none !important; }
-
-        #start-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center;
-        }
-        .night-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000 url('bg-night.jpg') no-repeat center center;
-            background-size: cover; z-index: 1000;
-        }
+        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
     </style>
 </head>
 <body>
 
 <div id="start-overlay">
-    <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">ACCÉDER AU COMMISSARIAT</button>
+    <button class="btn-main" style="width: auto; padding: 25px 50px;" onclick="initAudio()">LANCER LA PARTIE</button>
 </div>
 
 <audio id="bg-music" loop preload="auto"><source src="ambiance.mp3" type="audio/mpeg"></audio>
@@ -92,22 +128,26 @@
 
     <div id="setup-screen">
         <div id="player-inputs">
-            <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
-            <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
-            <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
+            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
+            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
+            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
         </div>
-        <button onclick="addInput()">+ AJOUTER UN JOUEUR</button>
-        <button class="btn-main" onclick="startGame()" style="margin-top:20px">LANCER LA PARTIE</button>
+        <button onclick="addInput()">+ AJOUTER UN SUSPECT</button>
+        <button class="btn-main" onclick="startGame()" style="margin-top:25px">DÉBUTER L'ENQUÊTE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <h2 id="target-name">---</h2>
-        <button id="show-btn" class="btn-main" onclick="showRole()">OUVRIR DOSSIER</button>
+        <p style="letter-spacing: 4px; color: #666; font-size: 0.8rem; margin-top: 0;">REQUÊTE RÉSERVÉE À</p>
+        <h2 id="target-container"><span id="target-name" class="typewriter-name">---</span></h2>
+        <button id="show-btn" class="btn-main" onclick="showRole()">CONSULTER LE DOSSIER</button>
+        
         <div id="role-display" class="hidden">
+            <div style="font-size: 0.6rem; text-align: left; opacity: 0.5; padding: 5px 10px; color:black;">RÉF: NK-9920 // TOP SECRET</div>
             <div id="role-image" class="role-image-container"></div>
             <div class="role-data">
+                <hr style="border: 0; border-top: 1px solid #999; margin: 0 0 10px 0;">
                 <div id="role-text" class="stamp">---</div>
-                <button onclick="nextStep()" style="color:#333; border-color:#333; margin-top:10px">FERMER</button>
+                <button onclick="nextStep()" style="color:#222; border-color:#222; margin-top:15px; background:rgba(0,0,0,0.05); letter-spacing: 1px; padding: 12px;">ACQUITTER ET FERMER</button>
             </div>
         </div>
     </div>
@@ -116,7 +156,7 @@
         <div id="big-timer">05:00</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
         <div class="player-grid" id="elimination-list"></div>
-        <button onclick="addMinute()" style="color:var(--gold); margin-top:20px">+ 1 MINUTE</button>
+        <button onclick="addMinute()" style="color:var(--gold); border-color:var(--gold); font-size: 0.75rem; margin-top:25px;">+ 1 MINUTE (REQUÊTE)</button>
     </div>
 </div>
 
@@ -135,22 +175,26 @@
         jour: 'voix-jour.mp3', soixante: 'voix-60s.mp3', vote: 'voix-chrono-fin.mp3'
     };
 
+    // --- GESTION AUDIO SÉCURISÉE (PAUSE/REPRISE) ---
+
     function initAudio() {
         music.volume = 0.2;
-        music.play().catch(() => {});
+        music.play().catch(() => console.log("Audio bloqué par le navigateur"));
         document.getElementById('start-overlay').classList.add('hidden');
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    // FONCTION AUDIO NON-BLOQUANTE (SECURITE MAXIMUM)
+    // Fonction voix non-bloquante (sécurité maximum)
     function playVoice(key) {
         return new Promise(resolve => {
+            if (!audioFiles[key]) return resolve();
+            
             console.log("Lecture de : " + key);
-            music.pause();
+            music.pause(); // Stop l'ambiance pour laisser place à la voix
             const audio = new Audio(audioFiles[key]);
             
-            // Si le son ne finit pas en 12s (sécurité), on passe à la suite
-            const timeout = setTimeout(() => {
+            // Sécurité : si le son bug (manquant ou trop long), on débloque après 12s
+            const safetyTimeout = setTimeout(() => {
                 console.log("Timeout sur : " + key);
                 music.play();
                 resolve();
@@ -158,13 +202,13 @@
 
             audio.play().then(() => {
                 audio.onended = () => {
-                    clearTimeout(timeout);
-                    music.play();
+                    clearTimeout(safetyTimeout);
+                    music.play(); // Reprend l'ambiance
                     resolve();
                 };
             }).catch(e => {
-                console.log("Erreur ou bloqué : " + key);
-                clearTimeout(timeout);
+                console.log("Erreur de lecture: " + key);
+                clearTimeout(safetyTimeout);
                 music.play();
                 resolve();
             });
@@ -179,33 +223,43 @@
         s.onend = () => music.play();
     }
 
+    // --- LOGIQUE DE JEU ---
+
     function addInput() {
         const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'NOM DU SUSPECT'; input.className = 'player-name';
+        input.type = 'text'; input.placeholder = 'NOM DU JOUEUR'; input.className = 'player-name';
         document.getElementById('player-inputs').appendChild(input);
     }
 
     function startGame() {
         const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-        if (names.length < 3) return alert("3 joueurs min.");
+        if (names.length < 3) return alert("3 suspects minimum.");
         
         let roles = [];
         let total = names.length;
         let mCount = Math.max(1, Math.floor(total/3));
+        
         for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX', t:'mafia'});
         if(total >= 6) roles.push({n:'INFILTRÉ', t:'undercover'});
         while(roles.length < total) roles.push({n:'POLICE', t:'police'});
+        
         roles.sort(() => Math.random() - 0.5);
-
         players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
-        currentIndex = 0;
+        
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
         updateReveal();
     }
 
     function updateReveal() {
-        document.getElementById('target-name').innerText = players[currentIndex].name;
+        const nameElement = document.getElementById('target-name');
+        
+        // On réinitialise l'animation typewriter
+        nameElement.style.animation = 'none';
+        nameElement.offsetHeight; // Trigger reflow
+        nameElement.innerText = players[currentIndex].name;
+        nameElement.style.animation = null; 
+
         document.getElementById('role-display').classList.add('hidden');
         document.getElementById('show-btn').classList.remove('hidden');
         document.body.style.boxShadow = "none";
@@ -217,6 +271,7 @@
         document.getElementById('role-text').innerText = r.n;
         img.style.backgroundImage = `url('role-${r.t}.png')`;
         
+        // Halo de couleur immersif discret
         if(r.t === 'mafia') document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)";
         else if(r.t === 'undercover') document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)";
         else document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)";
@@ -237,7 +292,7 @@
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
         
-        // Séquence chronométrée
+        // Séquence de nuit chronométrée
         await playVoice('debut');
         await playVoice('nuit');
         await new Promise(r => setTimeout(r, 2000));
@@ -264,6 +319,7 @@
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
             document.getElementById('progress-bar').style.width = (timeLeft / 300) * 100 + "%";
+            
             if (timeLeft === 60) playVoice('soixante');
             if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote'); }
         }, 1000);
