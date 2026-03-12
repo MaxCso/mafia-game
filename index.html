@@ -154,15 +154,67 @@
         vote: new Audio('voix-chrono-fin.mp3')
     };
 
-    function playVoice(key) {
-        return new Promise(resolve => {
-            if (audioVoix[key]) {
-                audioVoix[key].play().catch(e => console.log("Fichier manquant:", key));
-                audioVoix[key].onended = resolve;
-            } else { resolve(); }
-        });
-    }
+// Fonction pour lire tes fichiers MP3 avec baisse automatique de la musique
+function playVoice(key) {
+    return new Promise(resolve => {
+        if (audioVoix[key]) {
+            // 1. On baisse le volume de la musique d'ambiance à 5%
+            fadeMusic(0.05, 500); 
 
+            audioVoix[key].play().catch(e => console.log("Erreur audio:", e));
+            
+            audioVoix[key].onended = () => {
+                // 2. La voix est finie, on remonte le volume à 20% (ou ton volume habituel)
+                fadeMusic(0.2, 1000); 
+                resolve();
+            };
+        } else {
+            resolve();
+        }
+    });
+}
+
+// Fonction pour faire un fondu sonore (plus pro qu'une coupure brutale)
+function fadeMusic(targetVolume, duration) {
+    const startVolume = music.volume;
+    const diff = targetVolume - startVolume;
+    const steps = 20;
+    const stepTime = duration / steps;
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+        currentStep++;
+        music.volume = startVolume + (diff * (currentStep / steps));
+        if (currentStep >= steps) {
+            music.volume = targetVolume;
+            clearInterval(interval);
+        }
+    }, stepTime);
+}
+
+// --- MISE À JOUR DE LA FONCTION ELIMINATE (ROBOT) ---
+// On applique aussi la baisse de son pour la voix de robot
+async function eliminate(i) {
+    if(!players[i].alive) return;
+    players[i].alive = false; 
+    renderPlayers();
+    
+    // Baisse musique
+    fadeMusic(0.05, 500);
+    
+    playTone(100, 0.8);
+    await speakRobot(players[i].name + " était " + players[i].role.n);
+    
+    // Remonte musique
+    fadeMusic(0.2, 1000);
+
+    const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
+    if(aliveMafia === 0) {
+        fadeMusic(0.05, 500);
+        await speakRobot("La ville est nettoyée. La police gagne.");
+        location.reload();
+    }
+}
     function speakRobot(text) {
         return new Promise(resolve => {
             const s = new SpeechSynthesisUtterance(text);
