@@ -3,140 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Immersion Noire Totale</title>
+    <title>MAFIA - Dossier Noir Immersif</title>
     <style>
         :root {
-            --red: #ff3131;
-            --blue: #00d2ff;
-            --purple: #bc13fe; /* Couleur spécifique pour l'infiltré */
-            --gold: #ffcf1b;
-            --border: #333;
-            --paper: #e8dcc4;
-            --text-dark: #1a1a1a;
-            --text-light: #d0d0d0;
+            --red: #ff3131; --blue: #00d2ff; --purple: #bc13fe;
+            --gold: #ffcf1b; --border: #333; --paper: #e8dcc4;
+            --text-dark: #1a1a1a; --text-light: #d0d0d0;
         }
 
         body {
             font-family: 'Courier New', Courier, monospace;
             background-image: url('bg-main.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: #0a0a0a;
-            color: var(--text-light);
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
-            transition: box-shadow 0.4s ease; /* Pour les halos de couleur */
+            background-size: cover; background-position: center; background-attachment: fixed;
+            background-color: #0a0a0a; color: var(--text-light);
+            margin: 0; min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            transition: box-shadow 0.4s ease;
         }
 
         body::before {
-            content: "";
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 1;
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 1;
         }
 
         .container {
-            width: 90%;
-            max-width: 400px;
-            padding: 30px;
-            background: rgba(21, 21, 21, 0.9);
-            border: 1px solid var(--border);
-            box-shadow: 0 0 50px rgba(0,0,0,1);
-            position: relative;
-            z-index: 2;
-            animation: fadeIn 1s ease;
+            width: 90%; max-width: 400px; padding: 30px;
+            background: rgba(21, 21, 21, 0.9); border: 1px solid var(--border);
+            box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
         }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         h1 {
-            font-size: 2.5rem;
-            color: var(--red);
-            text-transform: uppercase;
-            letter-spacing: 15px;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 40px;
+            font-size: 2.5rem; color: var(--red); text-transform: uppercase;
+            letter-spacing: 15px; text-align: center; margin-bottom: 40px;
             text-shadow: 3px 3px 0px #000;
         }
 
-        /* Dossier Confidentiel RÉPONSES */
         #role-display {
-            background: var(--paper);
-            color: var(--text-dark);
-            padding: 0;
-            margin: 20px 0;
-            box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
-            transform: rotate(-1deg);
-            border-left: 15px solid #c5b595;
-            display: none;
-            overflow: hidden;
-            border-radius: 5px;
+            background: var(--paper); color: var(--text-dark); padding: 0;
+            margin: 20px 0; box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
+            transform: rotate(-1deg); border-left: 15px solid #c5b595;
+            display: none; overflow: hidden; border-radius: 5px;
         }
 
         .role-image-container {
-            width: 100%;
-            height: 200px;
-            background-size: cover;
-            background-position: center;
+            width: 100%; height: 200px; background-size: cover; background-position: center;
             border-bottom: 2px solid #333;
         }
 
         .role-data { padding: 20px; }
 
         .stamp {
-            border: 4px solid #7a1a1a;
-            color: #7a1a1a;
-            padding: 8px;
-            text-transform: uppercase;
-            font-weight: bold;
-            font-size: 1.4rem;
-            display: inline-block;
-            transform: rotate(-10deg);
-            margin-top: 15px;
-            opacity: 0.9;
+            border: 4px solid #7a1a1a; color: #7a1a1a; padding: 8px;
+            text-transform: uppercase; font-weight: bold; font-size: 1.4rem;
+            display: inline-block; transform: rotate(-10deg); margin-top: 15px;
         }
 
-        /* Inputs & Buttons */
         input {
-            width: 85%; padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--border);
-            color: var(--red);
-            font-family: inherit;
-            margin-bottom: 12px;
-            font-size: 1rem;
+            width: 85%; padding: 15px; background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border); color: var(--red);
+            font-family: inherit; margin-bottom: 12px; font-size: 1rem;
         }
 
         button {
-            width: 100%; padding: 18px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            color: #999;
-            font-family: inherit;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 15px;
+            width: 100%; padding: 18px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border); color: #999;
+            font-family: inherit; text-transform: uppercase; letter-spacing: 3px;
+            cursor: pointer; transition: 0.3s; margin-top: 15px;
         }
 
-        button:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.08); }
-
         .btn-main { background: rgba(26, 0, 0, 0.8); color: var(--red); border: 1px solid var(--red); }
-        .btn-main:hover { background: rgba(255, 49, 49, 0.15); border-color: var(--red); color: #fff; }
 
-        /* Timer & Jauge */
-        .progress-container { width: 100%; height: 5px; background: #111; margin-top: 20px; border-radius: 2px; }
-        #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; box-shadow: 0 0 10px var(--red); border-radius: 2px; }
-        #big-timer { font-size: 5rem; font-weight: bold; color: #fff; margin: 10px 0; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        #big-timer { font-size: 5rem; font-weight: bold; color: #fff; margin: 10px 0; }
 
-        /* Liste des joueurs */
+        .progress-container { width: 100%; height: 5px; background: #111; margin-top: 20px; }
+        #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; }
+
         .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
         .player-card {
             padding: 18px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.5);
@@ -144,14 +85,11 @@
         }
         .player-card.dead { opacity: 0.2; text-decoration: line-through; filter: grayscale(1); pointer-events: none; }
 
-        /* Ambiance */
         .hidden { display: none !important; }
-        .sky-icon { font-size: 3rem; margin-bottom: 10px; opacity: 0.6; }
         .night-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('bg-night.jpg');
-            background-size: cover; background-position: center;
-            background-color: #000; z-index: 1000;
+            background-image: url('bg-night.jpg'); background-size: cover;
+            background-position: center; z-index: 1000;
         }
     </style>
 </head>
@@ -168,33 +106,27 @@
             <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
             <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
         </div>
-        <button onclick="addInput()">+ AJOUTER DOSSIER</button>
-        <button class="btn-main" onclick="startGame(true)">DÉBUTER L'ENQUÊTE</button>
+        <button onclick="addInput()">+ AJOUTER UN JOUEUR</button>
+        <button class="btn-main" onclick="startGame(true)">DÉBUTER LA PARTIE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p style="letter-spacing: 5px; color: #777; font-size: 0.8rem; margin-top: 0;">RESTREINT // CLASSIFIÉ</p>
-        <h2 id="target-name" style="color: #fff; font-size: 2.2rem; margin: 15px 0;">---</h2>
+        <h2 id="target-name" style="font-size: 2.2rem; margin: 15px 0;">---</h2>
         <button id="show-btn" class="btn-main" onclick="showRole()">OUVRIR DOSSIER</button>
-        
         <div id="role-display">
             <div id="role-image" class="role-image-container"></div>
             <div class="role-data">
-                <p style="margin: 0; font-size: 0.8rem; text-align: left; opacity: 0.7; color: var(--text-dark);">DOSSIER RÉF: #NK-9920</p>
-                <hr style="border: 0; border-top: 1px solid #999; margin: 10px 0;">
                 <div id="role-text" class="stamp">---</div>
-                <button onclick="nextStep()" style="margin-top: 25px; border-color: #888; color: #666; background: rgba(0,0,0,0.05);">RELIRE & FERMER</button>
+                <button onclick="nextStep()" style="margin-top: 25px;">FERMER LE DOSSIER</button>
             </div>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
-        <div id="sky-anim" class="sky-icon">☀️</div>
         <div id="big-timer">05:00</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
-        
         <div class="player-grid" id="elimination-list"></div>
-        <button onclick="addMinute()" style="font-size: 0.75rem; border-style: dashed; margin-top: 25px; color: var(--gold); border-color: var(--gold);">+ 1 MINUTE (REQUÊTE)</button>
+        <button onclick="addMinute()" style="color: var(--gold); border-color: var(--gold);">+ 1 MINUTE</button>
     </div>
 </div>
 
@@ -208,29 +140,40 @@
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const music = document.getElementById('bg-music');
 
-    function speak(text) {
+    // CONFIGURATION DE TES FICHIERS AUDIO
+    const audioVoix = {
+        debut: new Audio('voix-debut.mp3'),
+        nuit: new Audio('voix-nuit.mp3'),
+        mafiaReveil: new Audio('voix-mafia-reveil.mp3'),
+        mafiaDodo: new Audio('voix-mafia-dodo.mp3'),
+        underReveil: new Audio('voix-under-reveil.mp3'),
+        jour: new Audio('voix-jour.mp3'),
+        soixante: new Audio('voix-60s.mp3'),
+        vote: new Audio('voix-chrono-fin.mp3')
+    };
+
+    function playVoice(key) {
         return new Promise(resolve => {
-            const s = new SpeechSynthesisUtterance(text);
-            s.lang = 'fr-FR'; s.pitch = 0.5; s.rate = 0.8;
-            window.speechSynthesis.speak(s);
-            setTimeout(resolve, text.length * 100 + 1500);
+            if (audioVoix[key]) {
+                audioVoix[key].play().catch(e => console.log("Fichier manquant:", key));
+                audioVoix[key].onended = resolve;
+            } else { resolve(); }
         });
     }
 
-    function playTone(f, d, gVal = 0.1) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.frequency.value = f; g.gain.setValueAtTime(gVal, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-        o.start(); o.stop(audioCtx.currentTime + d);
+    function speakRobot(text) {
+        return new Promise(resolve => {
+            const s = new SpeechSynthesisUtterance(text);
+            s.lang = 'fr-FR'; s.pitch = 0.5; s.rate = 0.8;
+            s.onend = resolve;
+            window.speechSynthesis.speak(s);
+        });
     }
 
     function addInput() {
         const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'NOM DU SUSPECT'; input.className = 'player-name';
+        input.type = 'text'; input.placeholder = 'NOM'; input.className = 'player-name';
         document.getElementById('player-inputs').appendChild(input);
-        playTone(150, 0.2);
     }
 
     async function startGame(first = false) {
@@ -239,25 +182,19 @@
             if (names.length < 3) return alert("3 suspects minimum.");
             window.playerPool = names;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            music.play().catch(() => {});
+            music.volume = 0.2; music.play().catch(() => {});
         }
-
         let total = window.playerPool.length;
         let mCount = Math.max(1, Math.floor(total / 3));
-        let uCount = (total >= 6) ? 1 : 0; // Ajout Infiltré si 6+ joueurs
+        let uCount = (total >= 6) ? 1 : 0;
         let roles = [];
-        
         for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX', t:'mafia'});
         for(let i=0; i<uCount; i++) roles.push({n:'INFILTRÉ', t:'undercover'});
         while(roles.length < total) roles.push({n:'POLICE', t:'police'});
-        
         roles.sort(() => Math.random() - 0.5);
-
         players = window.playerPool.map((name, i) => ({ name, role: roles[i], alive: true }));
         currentIndex = 0; timeLeft = 300;
-
         document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('master-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
         updateReveal();
     }
@@ -266,28 +203,25 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-display').style.display = 'none';
         document.getElementById('show-btn').classList.remove('hidden');
-        document.body.style.boxShadow = "none"; 
+        document.body.style.boxShadow = "none";
     }
 
     function showRole() {
         const r = players[currentIndex].role;
-        const imgContainer = document.getElementById('role-image');
+        const img = document.getElementById('role-image');
         document.getElementById('role-text').innerText = r.n;
-        
         if(r.t === 'mafia') {
-            imgContainer.style.backgroundImage = "url('role-mafia.jpg')";
+            img.style.backgroundImage = "url('role-mafia.jpg')";
             document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)";
         } else if(r.t === 'undercover') {
-            imgContainer.style.backgroundImage = "url('role-undercover.jpg')";
-            document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)"; // Halo Violet
+            img.style.backgroundImage = "url('role-undercover.jpg')";
+            document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)";
         } else {
-            imgContainer.style.backgroundImage = "url('role-police.jpg')";
+            img.style.backgroundImage = "url('role-police.jpg')";
             document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)";
         }
-        
         document.getElementById('role-display').style.display = 'block';
         document.getElementById('show-btn').classList.add('hidden');
-        playTone(300, 0.4);
     }
 
     function nextStep() {
@@ -300,25 +234,22 @@
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
         document.getElementById('night-overlay').classList.remove('hidden');
-        document.getElementById('sky-anim').innerText = "🌙";
-
-        await speak("L'enquête commence. Posez le téléphone. Fermez les yeux.");
+        
+        await playVoice('debut');
+        await playVoice('nuit');
         await new Promise(r => setTimeout(r, 2000));
-        await speak("Mafieux, réveillez-vous et reconnaissez-vous.");
+        await playVoice('mafiaReveil');
         await new Promise(r => setTimeout(r, 8000));
-        await speak("Mafieux, rendormez-vous.");
+        await playVoice('mafiaDodo');
 
-        // SÉQUENCE INFILTRÉ (Si présent)
         if(players.some(p => p.role.t === 'undercover')) {
-            await new Promise(r => setTimeout(r, 3000));
-            await speak("Infiltré, réveille-toi. Regarde qui sont les mafieux.");
-            await new Promise(r => setTimeout(r, 8000));
-            await speak("Infiltré, rendors-toi.");
+            await new Promise(r => setTimeout(r, 2000));
+            await playVoice('underReveil');
+            await new Promise(r => setTimeout(r, 7000));
         }
 
         document.getElementById('night-overlay').classList.add('hidden');
-        document.getElementById('sky-anim').innerText = "☀️";
-        await speak("Le jour se lève. Interrogez les suspects.");
+        await playVoice('jour');
         renderPlayers(); startTimer();
     }
 
@@ -328,12 +259,13 @@
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
             document.getElementById('progress-bar').style.width = (timeLeft / 300) * 100 + "%";
-            if (timeLeft <= 0) { clearInterval(timerInterval); speak("Le temps est écoulé. Votez."); }
+            if (timeLeft === 60) playVoice('soixante');
+            if (timeLeft === 0) { clearInterval(timerInterval); playVoice('vote'); }
             timeLeft--;
         }, 1000);
     }
 
-    function addMinute() { timeLeft += 60; playTone(400, 0.3); startTimer(); }
+    function addMinute() { timeLeft += 60; startTimer(); }
 
     function renderPlayers() {
         const list = document.getElementById('elimination-list');
@@ -350,10 +282,9 @@
     async function eliminate(i) {
         if(!players[i].alive) return;
         players[i].alive = false; renderPlayers();
-        playTone(100, 0.8);
-        await speak(players[i].name + " était " + players[i].role.n);
+        await speakRobot(players[i].name + " était " + players[i].role.n);
         const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
-        if(aliveMafia === 0) { await speak("La ville est nettoyée. La police gagne."); location.reload(); }
+        if(aliveMafia === 0) { await speakRobot("La police gagne."); location.reload(); }
     }
 </script>
 </body>
