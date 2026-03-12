@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/png" href="icon.jpg">
-    <link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO</title>
     <style>
         :root {
@@ -13,148 +11,71 @@
             --text-dark: #1a1a1a; --text-light: #d0d0d0;
         }
 
-        /* 1. CORRECTION DU FOND ET CENTRAGE GLOBAL */
         body {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0a0a0a;
-            /* L'astuce pour le vertical : fixed + center/cover */
-            background-image: url('bg-main.png');
+            background: #0a0a0a url('bg-main.png') no-repeat center center fixed;
             background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed; 
-            
             color: var(--text-light);
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            /* Centrage parfait des éléments */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; /* Empêche le scroll inutile sur l'accueil */
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
         }
 
-        /* Overlay pour lisibilité */
         body::before {
-            content: ""; 
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75); 
-            z-index: 1;
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); z-index: 1;
         }
 
-        /* 2. BOITE DE JEU PROPORTIONNELLE */
         .container {
-            width: 85%;
-            max-width: 380px;
-            /* On limite la hauteur pour que ça ne dépasse pas sur petit écran */
-            max-height: 90vh; 
-            padding: 20px;
-            background: rgba(21, 21, 21, 0.92);
-            border: 1px solid var(--border);
-            box-shadow: 0 0 40px rgba(0,0,0,1);
-            position: relative;
-            z-index: 2;
-            border-radius: 12px;
-            /* Centrage interne */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            overflow-y: auto; /* Permet de scroller à l'intérieur de la boite si trop de noms */
+            width: 85%; max-width: 380px; padding: 20px;
+            background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border);
+            box-shadow: 0 0 40px rgba(0,0,0,1); position: relative; z-index: 2;
+            border-radius: 12px; text-align: center;
+        }
+
+        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; }
+
+        input {
+            width: 90%; padding: 12px; background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border); color: var(--red);
+            margin-bottom: 8px; border-radius: 4px; text-align: center;
+        }
+
+        button {
+            width: 100%; padding: 14px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border); color: #bbb;
+            text-transform: uppercase; cursor: pointer; border-radius: 4px;
+        }
+
+        .btn-main { background: rgba(120, 0, 0, 0.8); color: white; border: 1px solid var(--red); font-weight: bold; }
+
+        #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; }
+        .progress-container { width: 100%; height: 6px; background: #111; margin: 10px 0; }
+        #progress-bar { width: 100%; height: 100%; background: var(--red); width: 100%; }
+
+        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.6); font-size: 0.8rem; }
+        .player-card.dead { opacity: 0.2; text-decoration: line-through; }
+
+        .hidden { display: none !important; }
+
+        .night-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('bg-night.jpg') no-repeat center center;
+            background-size: cover; z-index: 1000;
         }
 
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 2000;
-            display: flex; align-items: center; justify-content: center;
+            background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center;
         }
-
-        h1 {
-            font-size: 1.8rem; /* Un peu plus petit pour le mobile vertical */
-            color: var(--red);
-            text-transform: uppercase;
-            letter-spacing: 8px;
-            margin: 0 0 20px 0;
-            text-shadow: 2px 2px 0px #000;
-            text-align: center;
-        }
-
-        /* 3. INPUTS ET BOUTONS AJUSTÉS */
-        #player-inputs {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        input {
-            width: 90%; 
-            padding: 12px; 
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border); 
-            color: var(--red);
-            font-family: inherit; 
-            margin-bottom: 8px; 
-            font-size: 0.9rem;
-            border-radius: 4px;
-            outline: none;
-            text-align: center;
-        }
-
-        button {
-            width: 100%; 
-            padding: 14px; 
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border); 
-            color: #bbb;
-            font-family: inherit; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
-            cursor: pointer; 
-            margin-top: 8px; 
-            border-radius: 4px;
-            font-size: 0.8rem;
-        }
-
-        .btn-main { 
-            background: rgba(80, 0, 0, 0.9); 
-            color: var(--red); 
-            border: 1px solid var(--red); 
-            font-weight: bold; 
-            margin-top: 15px;
-        }
-
-        /* Styles spécifiques pour les écrans verticaux très fins */
-        @media (max-height: 600px) {
-            h1 { font-size: 1.4rem; margin-bottom: 10px; }
-            .container { padding: 15px; }
-            input { padding: 10px; }
-        }
-
-        /* Styles du reste (Timer, Rôles, etc.) */
-        #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; }
-        .progress-container { width: 100%; height: 6px; background: #111; margin: 10px 0; }
-        #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; }
-        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0, 0, 0, 0.6); font-size: 0.8rem; }
-        .player-card.dead { opacity: 0.2; text-decoration: line-through; pointer-events: none; }
-        .hidden { display: none !important; }
-        
-        #role-display {
-            background: var(--paper); color: var(--text-dark); padding: 0;
-            margin: 15px 0; box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
-            border-left: 10px solid #c5b595; display: none; overflow: hidden;
-        }
-        .role-image-container { width: 100%; height: 150px; background-size: cover; background-position: center; }
-        .stamp { border: 3px solid #7a1a1a; color: #7a1a1a; padding: 5px 10px; font-weight: bold; font-size: 1.1rem; display: inline-block; transform: rotate(-10deg); margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div id="start-overlay">
-    <button class="btn-main" style="width: auto; padding: 20px 30px;" onclick="initAudio()">LANCER LA PARTIE</button>
+    <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">ENTRER AU COMMISSARIAT</button>
 </div>
 
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
@@ -169,17 +90,17 @@
             <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
         </div>
         <button onclick="addInput()">+ AJOUTER UN JOUEUR</button>
-        <button class="btn-main" onclick="startGame()">DÉBUTER LA PARTIE</button>
+        <button class="btn-main" onclick="startGame()" style="margin-top:20px">LANCER LA PARTIE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <h2 id="target-name" style="font-size: 1.8rem; margin: 10px 0;">---</h2>
+        <h2 id="target-name">---</h2>
         <button id="show-btn" class="btn-main" onclick="showRole()">OUVRIR DOSSIER</button>
-        <div id="role-display">
-            <div id="role-image" class="role-image-container"></div>
-            <div class="role-data">
-                <div id="role-text" class="stamp">---</div>
-                <button onclick="nextStep()" style="color: #333; border-color: #333; margin: 10px 0; padding: 10px;">FERMER</button>
+        <div id="role-display" class="hidden">
+            <div id="role-image" style="height:150px; background-size:cover;"></div>
+            <div style="background:var(--paper); color:black; padding:10px;">
+                <div id="role-text" style="font-weight:bold; border:2px solid black; display:inline-block; padding:5px;">---</div>
+                <button onclick="nextStep()" style="color:black; border:1px solid black; margin-top:10px">DOSSIER SUIVANT</button>
             </div>
         </div>
     </div>
@@ -188,76 +109,63 @@
         <div id="big-timer">05:00</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
         <div class="player-grid" id="elimination-list"></div>
-        <button onclick="addMinute()" style="color: var(--gold); border-color: var(--gold); font-size: 0.7rem; margin-top: 15px;">+ 1 MINUTE</button>
+        <button onclick="addMinute()" style="color:var(--gold); margin-top:15px">+ 1 MINUTE</button>
     </div>
 </div>
 
-<div id="night-overlay" class="night-overlay hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background-image:url('bg-night.jpg'); background-size:cover; z-index:1000;"></div>
+<div id="night-overlay" class="night-overlay hidden"></div>
 
 <script>
-    // --- TA LOGIQUE JAVASCRIPT RESTE LA MÊME ---
     let players = [];
     let currentIndex = 0;
     let timeLeft = 300;
     let timerInterval = null;
-    let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const music = document.getElementById('bg-music');
 
-    const audioVoix = {
-        debut: new Audio('voix-debut.mp3'),
-        nuit: new Audio('voix-nuit.mp3'),
-        mafiaReveil: new Audio('voix-mafia-reveil.mp3'),
-        mafiaDodo: new Audio('voix-mafia-dodo.mp3'),
-        underReveil: new Audio('voix-under-reveil.mp3'),
-        jour: new Audio('voix-jour.mp3'),
-        soixante: new Audio('voix-60s.mp3'),
-        vote: new Audio('voix-chrono-fin.mp3')
+    const audioFiles = {
+        debut: 'voix-debut.mp3', nuit: 'voix-nuit.mp3', mafiaReveil: 'voix-mafia-reveil.mp3',
+        mafiaDodo: 'voix-mafia-dodo.mp3', underReveil: 'voix-under-reveil.mp3',
+        jour: 'voix-jour.mp3', soixante: 'voix-60s.mp3', vote: 'voix-chrono-fin.mp3'
     };
 
     function initAudio() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
         music.volume = 0.2;
-        music.play();
+        music.play().catch(() => console.log("Audio play blocked"));
         document.getElementById('start-overlay').classList.add('hidden');
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    function fadeMusic(targetVolume, duration) {
-        return new Promise(resolve => {
-            const startVolume = music.volume;
-            const diff = targetVolume - startVolume;
-            const steps = 15;
-            const stepTime = duration / steps;
-            let currentStep = 0;
-            const interval = setInterval(() => {
-                currentStep++;
-                music.volume = Math.max(0, Math.min(1, startVolume + (diff * (currentStep / steps))));
-                if (currentStep >= steps) { music.volume = targetVolume; clearInterval(interval); resolve(); }
-            }, stepTime);
-        });
+    // Gestion du volume fluide
+    function setVolume(val) {
+        music.volume = val;
     }
 
-    async function playVoice(key) {
-        if (!audioVoix[key]) return;
-        await fadeMusic(0.04, 400); 
+    // Fonction de lecture voix sécurisée
+    function playVoice(key) {
         return new Promise(resolve => {
-            audioVoix[key].play().catch(e => console.log(e));
-            audioVoix[key].onended = async () => {
-                await new Promise(r => setTimeout(r, 600));
-                await fadeMusic(0.2, 1000); 
-                resolve();
+            const audio = new Audio(audioFiles[key]);
+            setVolume(0.05); // Baisse immédiate
+
+            audio.play().catch(() => {
+                console.log("Erreur lecture: " + key);
+                setTimeout(resolve, 1000); // Passe à la suite après 1s si erreur
+            });
+
+            audio.onended = () => {
+                setTimeout(() => {
+                    setVolume(0.2); // Remonte le son
+                    resolve();
+                }, 500);
             };
         });
     }
 
     async function speakRobot(text) {
-        await fadeMusic(0.04, 400);
-        return new Promise(resolve => {
-            const s = new SpeechSynthesisUtterance(text);
-            s.lang = 'fr-FR'; s.pitch = 0.6; s.rate = 0.85;
-            s.onend = async () => { await fadeMusic(0.2, 1000); resolve(); };
-            window.speechSynthesis.speak(s);
-        });
+        setVolume(0.05);
+        const s = new SpeechSynthesisUtterance(text);
+        s.lang = 'fr-FR'; s.rate = 0.8;
+        window.speechSynthesis.speak(s);
+        s.onend = () => setVolume(0.2);
     }
 
     function addInput() {
@@ -266,17 +174,18 @@
         document.getElementById('player-inputs').appendChild(input);
     }
 
-    async function startGame() {
+    function startGame() {
         const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-        if (names.length < 3) return alert("3 suspects minimum.");
-        let total = names.length;
-        let mCount = Math.max(1, Math.floor(total / 3));
-        let uCount = (total >= 6) ? 1 : 0;
+        if (names.length < 3) return alert("3 joueurs min.");
+        
         let roles = [];
+        let total = names.length;
+        let mCount = Math.max(1, Math.floor(total/3));
         for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX', t:'mafia'});
-        for(let i=0; i<uCount; i++) roles.push({n:'INFILTRÉ', t:'undercover'});
+        if(total >= 6) roles.push({n:'INFILTRÉ', t:'undercover'});
         while(roles.length < total) roles.push({n:'POLICE', t:'police'});
         roles.sort(() => Math.random() - 0.5);
+
         players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
@@ -285,7 +194,7 @@
 
     function updateReveal() {
         document.getElementById('target-name').innerText = players[currentIndex].name;
-        document.getElementById('role-display').style.display = 'none';
+        document.getElementById('role-display').classList.add('hidden');
         document.getElementById('show-btn').classList.remove('hidden');
     }
 
@@ -293,10 +202,8 @@
         const r = players[currentIndex].role;
         const img = document.getElementById('role-image');
         document.getElementById('role-text').innerText = r.n;
-        if(r.t === 'mafia') img.style.backgroundImage = "url('role-mafia.png')";
-        else if(r.t === 'undercover') img.style.backgroundImage = "url('role-undercover.png')";
-        else img.style.backgroundImage = "url('role-police.png')";
-        document.getElementById('role-display').style.display = 'block';
+        img.style.backgroundImage = `url('role-${r.t}.png')`;
+        document.getElementById('role-display').classList.remove('hidden');
         document.getElementById('show-btn').classList.add('hidden');
     }
 
@@ -309,36 +216,41 @@
     async function startMasterMode() {
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        document.getElementById('night-overlay').classList.remove('hidden');
+        const night = document.getElementById('night-overlay');
+        
+        night.classList.remove('hidden');
+        
+        // Séquence de nuit forcée
         await playVoice('debut');
         await playVoice('nuit');
-        await new Promise(r => setTimeout(r, 1500));
+        await new Promise(r => setTimeout(r, 1000));
         await playVoice('mafiaReveil');
-        await new Promise(r => setTimeout(r, 7000));
+        await new Promise(r => setTimeout(r, 6000));
         await playVoice('mafiaDodo');
+
         if(players.some(p => p.role.t === 'undercover')) {
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 1000));
             await playVoice('underReveil');
-            await new Promise(r => setTimeout(r, 6000));
+            await new Promise(r => setTimeout(r, 5000));
         }
-        document.getElementById('night-overlay').classList.add('hidden');
+
+        night.classList.add('hidden');
         await playVoice('jour');
-        renderPlayers(); startTimer();
+        renderPlayers();
+        startTimer();
     }
 
     function startTimer() {
         if(timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
+            timeLeft--;
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
             document.getElementById('progress-bar').style.width = (timeLeft / 300) * 100 + "%";
             if (timeLeft === 60) playVoice('soixante');
-            if (timeLeft === 0) { clearInterval(timerInterval); playVoice('vote'); }
-            timeLeft--;
+            if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote'); }
         }, 1000);
     }
-
-    function addMinute() { timeLeft += 60; }
 
     function renderPlayers() {
         const list = document.getElementById('elimination-list');
@@ -352,12 +264,17 @@
         });
     }
 
+    function addMinute() { timeLeft += 60; }
+
     async function eliminate(i) {
         if(!players[i].alive) return;
-        players[i].alive = false; renderPlayers();
+        players[i].alive = false;
+        renderPlayers();
         await speakRobot(players[i].name + " était " + players[i].role.n);
-        const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
-        if(aliveMafia === 0) { await speakRobot("La police gagne."); location.reload(); }
+        if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
+            alert("LA POLICE GAGNE !");
+            location.reload();
+        }
     }
 </script>
 </body>
