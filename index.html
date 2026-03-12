@@ -33,7 +33,7 @@
             border-radius: 8px; text-align: center;
         }
 
-        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; text-shadow: 2px 2px 0px #000; }
+        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; }
 
         input {
             width: 90%; padding: 12px; background: #000; border: 1px solid var(--border);
@@ -48,20 +48,18 @@
 
         .btn-main { background: #800000; color: white; border: 1px solid var(--red); font-weight: bold; margin-top: 10px; }
 
-        /* ÉCRAN RÉVÉLATION */
         #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; }
 
         #role-display {
             background: var(--paper); color: var(--text-dark);
             margin: 20px 0; padding: 0; border-radius: 4px;
             box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
-            transform: rotate(-1deg); display: none; /* Masqué par défaut */
+            transform: rotate(-1deg); display: none;
         }
 
         .role-image-container {
             width: 150px; height: 150px; margin: 20px auto;
             border: 6px solid #fff; background-size: cover; background-position: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .stamp {
@@ -70,7 +68,6 @@
             display: inline-block; transform: rotate(-10deg); margin-bottom: 20px;
         }
 
-        /* TIMER ET GRILLE */
         #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; font-weight: bold; }
         .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.8rem; }
@@ -131,10 +128,16 @@
     let timerInterval = null;
     const music = document.getElementById('bg-music');
 
-    const audioFiles = {
-        debut: 'voix-debut.mp3', nuit: 'voix-nuit.mp3', mafiaReveil: 'voix-mafia-reveil.mp3',
-        mafiaDodo: 'voix-mafia-dodo.mp3', underReveil: 'voix-under-reveil.mp3',
-        jour: 'voix-jour.mp3', soixante: 'voix-60s.mp3', vote: 'voix-chrono-fin.mp3'
+    // Pré-chargement des objets Audio
+    const audioObj = {
+        debut: new Audio('voix-debut.mp3'),
+        nuit: new Audio('voix-nuit.mp3'),
+        mafiaReveil: new Audio('voix-mafia-reveil.mp3'),
+        mafiaDodo: new Audio('voix-mafia-dodo.mp3'),
+        underReveil: new Audio('voix-under-reveil.mp3'),
+        jour: new Audio('voix-jour.mp3'),
+        soixante: new Audio('voix-60s.mp3'),
+        vote: new Audio('voix-chrono-fin.mp3')
     };
 
     function initAudio() {
@@ -144,14 +147,30 @@
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    function playVoice(key) {
-        return new Promise(resolve => {
+    // Fonction de lecture ultra-sécurisée
+    async function playVoice(key, durationFallback = 3000) {
+        return new Promise(async (resolve) => {
             music.pause();
-            const audio = new Audio(audioFiles[key]);
-            const safety = setTimeout(() => { music.play(); resolve(); }, 12000);
-            audio.play().then(() => {
-                audio.onended = () => { clearTimeout(safety); music.play(); resolve(); };
-            }).catch(() => { clearTimeout(safety); music.play(); resolve(); });
+            const snd = audioObj[key];
+            let hasPlayed = false;
+
+            if (snd) {
+                snd.currentTime = 0;
+                snd.play().then(() => { hasPlayed = true; }).catch(e => console.log("Play failed, switching to timer"));
+                
+                snd.onended = () => {
+                    music.play();
+                    resolve();
+                };
+            }
+
+            // Sécurité : Si le son ne finit pas ou ne se lance pas, on attend la durée estimée
+            setTimeout(() => {
+                if (!hasPlayed || snd.paused) {
+                    music.play();
+                    resolve();
+                }
+            }, durationFallback);
         });
     }
 
@@ -204,33 +223,43 @@
     }
 
     async function startMasterMode() {
+        // Bloquer l'UI
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        document.getElementById('night-overlay').classList.remove('hidden');
-        await playVoice('debut');
-        await playVoice('nuit');
+        
+        const night = document.getElementById('night-overlay');
+        night.classList.remove('hidden');
+
+        // Séquence chronométrée et sécurisée
+        await playVoice('debut', 6000); // Attend 6s si le son bug
+        await playVoice('nuit', 4000);
         await new Promise(r => setTimeout(r, 2000));
-        await playVoice('mafiaReveil');
-        await new Promise(r => setTimeout(r, 8000));
-        await playVoice('mafiaDodo');
+        await playVoice('mafiaReveil', 5000);
+        await new Promise(r => setTimeout(r, 8000)); // Temps de reconnaissance
+        await playVoice('mafiaDodo', 4000);
+
         if(players.some(p => p.role.t === 'undercover')) {
             await new Promise(r => setTimeout(r, 2000));
-            await playVoice('underReveil');
+            await playVoice('underReveil', 5000);
             await new Promise(r => setTimeout(r, 7000));
         }
-        document.getElementById('night-overlay').classList.add('hidden');
-        await playVoice('jour');
+
+        // On libère l'écran AVANT de lancer le dernier son et le chrono
+        night.classList.add('hidden');
+        await playVoice('jour', 4000);
+        
         renderPlayers();
         startTimer();
     }
 
     function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             timeLeft--;
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            if (timeLeft === 60) playVoice('soixante');
-            if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote'); }
+            if (timeLeft === 60) playVoice('soixante', 3000);
+            if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote', 5000); }
         }, 1000);
     }
 
