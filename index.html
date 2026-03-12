@@ -13,33 +13,42 @@
             --text-dark: #1a1a1a; --text-light: #d0d0d0;
         }
 
-        body {
+       body {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0a0a0a;
-            background-image: url('bg-main.png');
+            background-color: #0a0a0a; /* Couleur de secours */
+            
+            /* On utilise une syntaxe plus robuste */
+            background: #0a0a0a url('bg-main.png') no-repeat center center;
             background-size: cover;
-            background-position: center center;
-            background-attachment: scroll; /* Correctif mobile */
-            color: var(--text-light);
+            
             margin: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
+            position: relative;
         }
 
-        /* Overlay sombre pour la lisibilité */
+        /* L'overlay doit être derrière le contenu mais devant le background du body */
         body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); z-index: 1;
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75); /* Un peu moins sombre pour voir le fond */
+            z-index: 1;
         }
 
         .container {
-            width: 90%; max-width: 400px; padding: 25px;
-            background: rgba(21, 21, 21, 0.95); border: 1px solid var(--border);
-            box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
-            text-align: center; border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            padding: 25px;
+            background: rgba(21, 21, 21, 0.9); /* Transparence pour voir le fond derrière */
+            border: 1px solid var(--border);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            position: relative;
+            z-index: 2; /* S'assure d'être au dessus de l'overlay */
+            border-radius: 8px;
         }
 
         #start-overlay {
