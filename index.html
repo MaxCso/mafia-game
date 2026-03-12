@@ -1,333 +1,1631 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/png" href="icon.jpg">
-    <link rel="apple-touch-icon" href="icon.jpg">    
-    <title>EL MAFIOSO - NOIR</title>
-    <style>
-        :root {
-            --red: #ff3131; --border: #333; --paper: #e8dcc4;
-            --text-dark: #1a1a1a; --text-light: #d0d0d0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>MAFIA NOIR</title>
+<style>
+/* ============================================
+   RESET & VARIABLES
+============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+:root {
+  --noir: #0a0a0a;
+  --rouge: #8b0000;
+  --rouge-vif: #c0392b;
+  --or: #c9a84c;
+  --or-clair: #f0d080;
+  --papier: #d4c5a9;
+  --papier-dark: #b8a88a;
+  --texte: #e8dcc8;
+  --gris: #555;
+  --font-titre: 'Georgia','Times New Roman',serif;
+  --font-mono: 'Courier New','Courier',monospace;
+}
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--noir);
+  color: var(--texte);
+  font-family: var(--font-mono);
+}
+.screen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center;
+  overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active { display: flex; }
 
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            background: #0a0a0a url('bg-main.png') no-repeat center center fixed;
-            background-size: cover;
-            color: var(--text-light);
-            margin: 0; padding: 0;
-            width: 100vw; height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
+/* ============================================
+   ÉCRAN 1 — LAUNCH
+============================================ */
+#screen-launch {
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #1a0505 0%, #000 70%);
+}
+.launch-inner { text-align: center; padding: 40px 30px; animation: fadeUp .8s both; }
+.launch-hat { font-size: 80px; animation: sway 3s ease-in-out infinite; margin-bottom: 20px; }
+.launch-logo {
+  font-family: var(--font-titre);
+  font-size: clamp(52px,13vw,84px);
+  color: var(--or);
+  letter-spacing: 8px;
+  text-shadow: 0 0 30px rgba(201,168,76,.5);
+  line-height: 1;
+}
+.launch-sub {
+  font-size: 11px; letter-spacing: 6px;
+  color: var(--rouge-vif); margin: 6px 0 50px;
+}
+.launch-quote {
+  font-style: italic; font-size: 13px;
+  color: var(--papier-dark); letter-spacing: 1px;
+  margin-bottom: 50px; line-height: 1.6;
+}
+.btn-launch {
+  display: block; width: 100%; max-width: 280px;
+  padding: 18px 40px;
+  background: linear-gradient(135deg, var(--rouge), #4a0000);
+  color: var(--or-clair);
+  font-family: var(--font-titre); font-size: 18px;
+  letter-spacing: 4px; text-transform: uppercase;
+  border: 2px solid var(--or); border-radius: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(139,0,0,.5);
+  transition: transform .15s;
+}
+.btn-launch:active { transform: scale(.97); }
 
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); z-index: 1;
-        }
+/* ============================================
+   ÉCRAN 2 — CONFIG
+============================================ */
+#screen-config {
+  background: linear-gradient(180deg,#0d0d0d,#1a0808);
+  padding-bottom: 40px;
+}
+.cfg-header {
+  width: 100%; padding: 50px 24px 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(201,168,76,.15);
+  background: linear-gradient(180deg,#000,transparent);
+}
+.cfg-header h1 {
+  font-family: var(--font-titre); font-size: 26px;
+  color: var(--or); letter-spacing: 4px;
+}
+.cfg-header p { font-size: 11px; color: var(--gris); letter-spacing: 2px; margin-top: 4px; }
+.cfg-body { width: 100%; max-width: 480px; padding: 20px; }
 
-        .container {
-            width: 85%; max-width: 380px; padding: 25px;
-            background: rgba(15, 15, 15, 0.95); border: 1px solid var(--border);
-            box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
-            border-radius: 8px; text-align: center;
-        }
+/* compteur rôles */
+.roles-chips { display: flex; gap: 10px; margin-bottom: 22px; }
+.chip {
+  flex: 1; text-align: center; padding: 10px 4px; border-radius: 4px;
+}
+.chip.mafia  { background: rgba(139,0,0,.25);   border: 1px solid var(--rouge); }
+.chip.police { background: rgba(20,50,120,.25);  border: 1px solid #3a5fa0; }
+.chip.under  { background: rgba(20,100,50,.25);  border: 1px solid #2e7d50; }
+.chip-n { display: block; font-size: 24px; font-weight: bold; color: var(--or-clair); }
+.chip-l { display: block; font-size: 9px; letter-spacing: 1px; color: var(--papier-dark); margin-top: 3px; }
 
-        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 25px; }
+/* liste joueurs */
+.players-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.player-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,.3); border: 1px solid rgba(201,168,76,.12);
+  border-radius: 4px; padding: 4px 6px 4px 14px;
+  animation: fadeUp .3s both;
+}
+.player-num { font-size: 11px; color: var(--or); min-width: 22px; }
+.player-input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--texte); font-family: var(--font-mono); font-size: 15px;
+  padding: 10px 0; caret-color: var(--or);
+}
+.player-input::placeholder { color: var(--gris); }
+.btn-rm {
+  width: 36px; height: 36px; background: none; border: none;
+  color: var(--rouge-vif); font-size: 20px; cursor: pointer; opacity: .7;
+}
+.btn-rm:active { opacity: 1; }
+.btn-add {
+  width: 100%; padding: 14px;
+  background: transparent; border: 1px dashed rgba(201,168,76,.25);
+  border-radius: 4px; color: var(--or); font-family: var(--font-mono);
+  font-size: 12px; letter-spacing: 2px; cursor: pointer; margin-bottom: 20px;
+}
+.btn-add:active { background: rgba(201,168,76,.06); }
 
-        input {
-            width: 90%; padding: 12px; background: #000; border: 1px solid var(--border);
-            color: var(--red); margin-bottom: 10px; border-radius: 4px; text-align: center; font-family: inherit;
-        }
+/* options */
+.opt-title {
+  font-size: 10px; letter-spacing: 3px; color: var(--gris);
+  text-transform: uppercase; margin-bottom: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.opt-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.opt-label { font-size: 13px; color: var(--papier); }
+.opt-label small { display: block; font-size: 10px; color: var(--gris); margin-top: 2px; }
 
-        button {
-            width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border); color: #aaa;
-            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit;
-        }
+/* toggle */
+.toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.tslider {
+  position: absolute; inset: 0; background: #333;
+  border-radius: 26px; cursor: pointer; transition: .3s;
+}
+.tslider::before {
+  content: ''; position: absolute;
+  width: 20px; height: 20px; left: 3px; bottom: 3px;
+  background: #888; border-radius: 50%; transition: .3s;
+}
+.toggle input:checked + .tslider { background: var(--rouge); }
+.toggle input:checked + .tslider::before { transform: translateX(22px); background: var(--or-clair); }
 
-        .btn-main { background: #6b0000; color: white; border: 1px solid var(--red); font-weight: bold; }
-        .btn-pause { background: rgba(255, 207, 27, 0.1); color: #ffcf1b; border-color: #ffcf1b; margin-top: 10px; width: 48%; display: inline-block; }
-        .btn-add { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border-color: #00d2ff; margin-top: 10px; width: 48%; display: inline-block; }
+/* stepper */
+.stepper { display: flex; align-items: center; gap: 12px; }
+.stp-btn {
+  width: 32px; height: 32px;
+  background: rgba(201,168,76,.1); border: 1px solid rgba(201,168,76,.3);
+  border-radius: 50%; color: var(--or); font-size: 18px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.stp-btn:active { background: rgba(201,168,76,.25); }
+.stp-val { font-size: 16px; color: var(--or-clair); min-width: 20px; text-align: center; }
 
-        #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; text-transform: uppercase; }
+.cfg-footer { width: 100%; max-width: 480px; padding: 0 20px; }
+.btn-start {
+  width: 100%; padding: 18px;
+  background: linear-gradient(135deg,var(--rouge),#3d0000);
+  border: 2px solid var(--or); border-radius: 3px;
+  color: var(--or-clair); font-family: var(--font-titre);
+  font-size: 17px; letter-spacing: 4px; text-transform: uppercase;
+  cursor: pointer; box-shadow: 0 4px 20px rgba(139,0,0,.4);
+}
+.btn-start:active { transform: scale(.98); }
+.err-msg { text-align: center; font-size: 11px; color: var(--rouge-vif); letter-spacing: 1px; margin-top: 10px; min-height: 18px; }
 
-        #role-display {
-            background: var(--paper); color: var(--text-dark);
-            margin: 20px 0; padding: 0; border-radius: 2px;
-            box-shadow: 10px 10px 30px rgba(0,0,0,0.6);
-            transform: rotate(-1.5deg); display: none;
-        }
-        .role-image-container {
-            width: 160px; height: 160px; margin: 25px auto 10px auto;
-            border: 8px solid #fff; background-size: cover; background-position: center;
-        }
-        .stamp {
-            border: 5px solid #8a2a2a; color: #8a2a2a; padding: 8px 18px;
-            font-weight: bold; font-size: 1.5rem; text-transform: uppercase;
-            display: inline-block; transform: rotate(-12deg); margin-bottom: 25px;
-        }
+/* ============================================
+   ÉCRAN 3 — REVEAL
+============================================ */
+#screen-reveal {
+  background: #0d0d0d;
+  justify-content: center;
+}
+.rv-wrap { width: 100%; max-width: 420px; padding: 40px 24px; text-align: center; }
+.rv-turn { font-size: 11px; letter-spacing: 4px; color: var(--gris); margin-bottom: 4px; }
+.rv-name { font-family: var(--font-titre); font-size: clamp(28px,7vw,42px); color: var(--or); margin-bottom: 28px; }
 
-        #big-timer { font-size: 4.5rem; color: #fff; margin: 10px 0; font-weight: bold; }
-        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .player-card { padding: 15px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.9rem; font-weight: bold; }
-        .player-card.dead { opacity: 0.1; text-decoration: line-through; }
+.rv-cover {
+  background: linear-gradient(135deg,#1a0000,#080000);
+  border: 2px solid rgba(201,168,76,.35); border-radius: 6px;
+  padding: 60px 30px; cursor: pointer; max-width: 320px; margin: 0 auto 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.8); transition: transform .15s;
+}
+.rv-cover:active { transform: scale(.97); }
+.rv-cover-icon { font-size: 52px; margin-bottom: 14px; }
+.rv-cover-txt { font-size: 11px; letter-spacing: 3px; color: var(--or); }
 
-        .hidden { display: none !important; }
-        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
-        #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; opacity:0; pointer-events:none; }
-    </style>
+.role-card {
+  max-width: 320px; margin: 0 auto 28px;
+  background: var(--papier); border-radius: 6px; overflow: hidden;
+  box-shadow: 0 0 0 3px var(--or), 0 12px 40px rgba(0,0,0,.8);
+  transform: rotate(-.5deg);
+  display: none; animation: cardFlip .5s both;
+}
+.role-card.show { display: block; }
+.rc-img-wrap {
+  width: 100%; height: 180px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 72px;
+}
+.rc-img-wrap.mafia  { background: linear-gradient(135deg,#2a0000,#150000); }
+.rc-img-wrap.police { background: linear-gradient(135deg,#001840,#000d24); }
+.rc-img-wrap.under  { background: linear-gradient(135deg,#002810,#001408); }
+.rc-body { padding: 18px 20px; position: relative; }
+.rc-lbl { font-size: 9px; letter-spacing: 3px; color: #888; margin-bottom: 3px; }
+.rc-title { font-family: var(--font-titre); font-size: 26px; letter-spacing: 2px; margin-bottom: 10px; }
+.rc-title.mafia  { color: var(--rouge); }
+.rc-title.police { color: #1a3a6b; }
+.rc-title.under  { color: #0a5a28; }
+.rc-desc { font-size: 12px; color: #333; line-height: 1.6; font-family: Georgia,serif; border-top: 1px solid #ccc; padding-top: 10px; }
+.rc-stamp {
+  position: absolute; top: 12px; right: 12px;
+  width: 62px; height: 62px; border-radius: 50%;
+  border: 3px solid var(--rouge-vif);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--rouge-vif); font-size: 7px; font-weight: bold;
+  letter-spacing: 1px; text-align: center; line-height: 1.3;
+  transform: rotate(12deg); opacity: .65;
+}
+
+.rv-hint { font-size: 11px; color: var(--gris); font-style: italic; margin-bottom: 16px; }
+.btn-next-rv {
+  width: 100%; max-width: 320px; padding: 16px;
+  background: transparent; border: 1px solid var(--or); border-radius: 3px;
+  color: var(--or); font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 3px; cursor: pointer; display: none;
+}
+.btn-next-rv.show { display: block; }
+.btn-next-rv:active { background: rgba(201,168,76,.08); }
+.rv-dots { display: flex; gap: 7px; justify-content: center; margin-top: 18px; }
+.rv-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(201,168,76,.2); transition: background .3s; }
+.rv-dot.done { background: var(--or); }
+.rv-dot.cur  { background: var(--rouge-vif); }
+
+/* ============================================
+   ÉCRAN 4 — NUIT
+============================================ */
+#screen-night {
+  background: #000;
+  justify-content: flex-start;
+}
+.night-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse at 50% 0%, #1a0008 0%, #000 60%);
+}
+.night-stars { position: fixed; inset: 0; z-index: 1; overflow: hidden; }
+.night-body {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 500px;
+  padding: 50px 24px 40px;
+  display: flex; flex-direction: column; align-items: center;
+  min-height: 100vh;
+}
+.night-moon { font-size: 52px; margin-bottom: 8px; }
+.night-h1 { font-family: var(--font-titre); font-size: 34px; color: #fff; letter-spacing: 6px; }
+.night-sub { font-size: 10px; letter-spacing: 4px; color: rgba(255,255,255,.3); margin-top: 4px; margin-bottom: 34px; }
+
+.night-status {
+  width: 100%; background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 4px; padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+}
+.ns-icon { font-size: 24px; animation: pulse 2s infinite; flex-shrink: 0; }
+.ns-txt { flex: 1; font-size: 12px; color: rgba(255,255,255,.6); letter-spacing: 1px; line-height: 1.5; }
+
+.waveform { display: flex; align-items: center; gap: 3px; height: 30px; margin-bottom: 26px; }
+.wb { width: 4px; background: var(--rouge-vif); border-radius: 2px; opacity: .25; transition: opacity .3s; }
+.waveform.active .wb { opacity: 1; }
+.waveform.active .wb:nth-child(1){animation:wave .7s ease-in-out infinite 0.0s}
+.waveform.active .wb:nth-child(2){animation:wave .7s ease-in-out infinite .08s}
+.waveform.active .wb:nth-child(3){animation:wave .7s ease-in-out infinite .16s}
+.waveform.active .wb:nth-child(4){animation:wave .7s ease-in-out infinite .24s}
+.waveform.active .wb:nth-child(5){animation:wave .7s ease-in-out infinite .32s}
+.waveform.active .wb:nth-child(6){animation:wave .7s ease-in-out infinite .24s}
+.waveform.active .wb:nth-child(7){animation:wave .7s ease-in-out infinite .16s}
+.waveform.active .wb:nth-child(8){animation:wave .7s ease-in-out infinite .08s}
+.waveform.active .wb:nth-child(9){animation:wave .7s ease-in-out infinite 0.0s}
+
+.night-seq { width: 100%; margin-bottom: 28px; }
+.seq-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 4px; margin-bottom: 6px;
+  transition: all .4s; opacity: .25; border: 1px solid transparent;
+}
+.seq-row.done    { opacity: .45; }
+.seq-row.current { opacity: 1; background: rgba(139,0,0,.2); border-color: rgba(139,0,0,.4); }
+.seq-icon { font-size: 18px; width: 26px; text-align: center; }
+.seq-txt  { flex: 1; font-size: 12px; color: rgba(255,255,255,.8); letter-spacing: 1px; }
+.seq-chk  { font-size: 14px; color: var(--or); }
+
+.btn-to-day {
+  width: 100%; padding: 18px;
+  background: linear-gradient(135deg,#061a06,#020d02);
+  border: 2px solid rgba(80,200,80,.35); border-radius: 4px;
+  color: rgba(120,255,120,.8); font-family: var(--font-titre);
+  font-size: 15px; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; margin-top: auto; transition: all .3s;
+  opacity: 0; pointer-events: none;
+}
+.btn-to-day.show { opacity: 1; pointer-events: all; }
+.btn-to-day:active { transform: scale(.98); }
+
+/* overlay mafia pour infiltré */
+.mf-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.96); z-index: 200;
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 24px;
+}
+.mf-overlay.show { display: flex; }
+.mf-title { font-family: var(--font-titre); font-size: 15px; letter-spacing: 3px; color: var(--rouge-vif); margin-bottom: 4px; }
+.mf-sub { font-size: 11px; color: var(--gris); letter-spacing: 2px; margin-bottom: 28px; }
+.mf-list { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+.mf-item {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(139,0,0,.2); border: 1px solid rgba(139,0,0,.5);
+  border-radius: 4px; padding: 14px 18px;
+}
+.mf-item-icon { font-size: 22px; }
+.mf-item-name { font-family: var(--font-titre); font-size: 18px; color: var(--or-clair); }
+.btn-close-mf {
+  padding: 14px 40px; background: rgba(139,0,0,.4);
+  border: 1px solid var(--rouge-vif); border-radius: 3px;
+  color: var(--texte); font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; cursor: pointer;
+}
+
+/* ============================================
+   ÉCRAN 5 — JOUR
+============================================ */
+#screen-day {
+  background: linear-gradient(180deg,#1a1000,#0d0a00);
+  justify-content: flex-start;
+}
+.day-header {
+  width: 100%; padding: 44px 20px 16px;
+  background: linear-gradient(180deg,#000,transparent);
+  border-bottom: 1px solid rgba(201,168,76,.12);
+  flex-shrink: 0;
+}
+.day-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.day-round { font-size: 10px; letter-spacing: 3px; color: var(--gris); }
+.day-title { font-family: var(--font-titre); font-size: 22px; color: var(--or); letter-spacing: 3px; }
+
+.chrono { font-family: var(--font-titre); font-size: clamp(48px,12vw,68px); color: var(--or-clair); text-align: center; line-height: 1; margin-bottom: 10px; text-shadow: 0 0 20px rgba(201,168,76,.3); }
+.chrono.urgent { color: var(--rouge-vif); animation: blinkRed 1s step-end infinite; }
+.chrono-track { width: 100%; height: 4px; background: rgba(255,255,255,.08); border-radius: 2px; overflow: hidden; }
+.chrono-fill { height: 100%; background: linear-gradient(90deg,var(--rouge),var(--or)); border-radius: 2px; transition: width .9s linear; }
+
+.day-ctrl {
+  display: flex; gap: 10px; padding: 14px 20px;
+  flex-shrink: 0; border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.ctrl-btn {
+  flex: 1; padding: 12px 4px;
+  border-radius: 4px; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 1px; cursor: pointer; border: 1px solid;
+  text-transform: uppercase; transition: all .15s;
+}
+.ctrl-btn:active { transform: scale(.96); }
+.ctrl-pause  { background: rgba(201,168,76,.1); border-color: rgba(201,168,76,.35); color: var(--or); }
+.ctrl-plus   { background: rgba(40,100,40,.2);  border-color: rgba(80,180,80,.35);  color: #8fdf8f; }
+.ctrl-night  { background: rgba(30,0,60,.3);    border-color: rgba(120,60,200,.4);  color: #c090ff; }
+
+.suspects-wrap {
+  flex: 1; width: 100%; max-width: 500px;
+  padding: 16px 20px 30px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.susp-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px; letter-spacing: 3px; color: var(--gris); text-transform: uppercase;
+  margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.susp-count { font-family: var(--font-titre); font-size: 20px; color: var(--or); }
+
+.susp-card {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(0,0,0,.35); border: 1px solid rgba(201,168,76,.1);
+  border-left: 3px solid rgba(201,168,76,.3);
+  border-radius: 4px; padding: 12px 14px; margin-bottom: 10px;
+  transition: all .35s; position: relative; overflow: hidden;
+}
+.susp-card.elim { opacity: .3; transform: scale(.97); border-left-color: rgba(139,0,0,.3); }
+.susp-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg,#2a1a08,#150d03);
+  border: 2px solid rgba(201,168,76,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-titre); font-size: 16px; color: var(--or);
+  flex-shrink: 0; text-transform: uppercase;
+}
+.susp-info { flex: 1; min-width: 0; }
+.susp-name { font-size: 15px; color: var(--texte); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.susp-card.elim .susp-name { text-decoration: line-through; color: var(--gris); }
+.susp-status { font-size: 10px; color: var(--gris); letter-spacing: 1px; margin-top: 2px; }
+.btn-elim {
+  padding: 8px 14px; background: rgba(139,0,0,.2);
+  border: 1px solid rgba(139,0,0,.5); border-radius: 3px;
+  color: var(--rouge-vif); font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 1px; cursor: pointer; flex-shrink: 0;
+}
+.btn-elim:active { background: rgba(139,0,0,.4); }
+.susp-card.elim .btn-elim { display: none; }
+.elim-tag { font-size: 10px; color: var(--rouge-vif); letter-spacing: 1px; display: none; flex-shrink: 0; }
+.susp-card.elim .elim-tag { display: block; }
+
+/* ============================================
+   ÉCRAN 6 — FIN DE PARTIE
+============================================ */
+#screen-end {
+  justify-content: center;
+  background: radial-gradient(ellipse at center,#120000,#000 70%);
+}
+.end-wrap { text-align: center; padding: 40px 28px; animation: fadeUp .8s both; }
+.end-icon { font-size: 72px; margin-bottom: 16px; }
+.end-winner {
+  font-family: var(--font-titre); font-size: clamp(34px,9vw,54px);
+  letter-spacing: 4px; text-transform: uppercase;
+}
+.end-winner.police { color: #4a90d9; }
+.end-winner.mafia  { color: var(--rouge-vif); }
+.end-sub { font-size: 11px; letter-spacing: 4px; color: var(--gris); margin: 6px 0 36px; }
+.end-box {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 4px; padding: 20px; margin-bottom: 28px; text-align: left;
+}
+.end-box-title { font-size: 10px; letter-spacing: 3px; color: var(--gris); margin-bottom: 12px; }
+.end-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.end-row:last-child { border-bottom: none; }
+.end-pname { flex: 1; font-size: 14px; }
+.end-role-badge { font-size: 10px; padding: 3px 9px; border-radius: 2px; letter-spacing: 1px; }
+.end-role-badge.mafia  { background: rgba(139,0,0,.3); color: #ff7070; border: 1px solid rgba(139,0,0,.5); }
+.end-role-badge.police { background: rgba(20,50,120,.3); color: #7baeff; border: 1px solid rgba(20,50,120,.5); }
+.end-role-badge.under  { background: rgba(20,100,50,.3); color: #6bffab; border: 1px solid rgba(20,100,50,.5); }
+.btn-restart {
+  width: 100%; max-width: 280px; padding: 18px;
+  background: linear-gradient(135deg,var(--rouge),#3d0000);
+  border: 2px solid var(--or); border-radius: 3px;
+  color: var(--or-clair); font-family: var(--font-titre);
+  font-size: 16px; letter-spacing: 3px; text-transform: uppercase;
+  cursor: pointer; transition: transform .15s;
+}
+.btn-restart:active { transform: scale(.97); }
+
+/* ============================================
+   UTILITAIRES GLOBAUX
+============================================ */
+.flash-overlay {
+  position: fixed; inset: 0; background: #fff;
+  z-index: 9999; opacity: 0; pointer-events: none;
+}
+.flash-overlay.go { animation: flashAnim .5s ease forwards; }
+
+.toast {
+  position: fixed; bottom: 30px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(15,15,15,.95); border: 1px solid rgba(201,168,76,.3);
+  border-radius: 30px; padding: 12px 24px;
+  font-size: 12px; letter-spacing: 2px; color: var(--texte);
+  z-index: 9998; white-space: nowrap;
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,.85);
+  z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-bg.show { display: flex; }
+.modal-box {
+  background: #111; border: 1px solid rgba(201,168,76,.3);
+  border-radius: 6px; padding: 28px 22px; width: 100%; max-width: 310px;
+  animation: fadeUp .3s both;
+}
+.modal-t { font-family: var(--font-titre); font-size: 20px; color: var(--or); margin-bottom: 8px; letter-spacing: 2px; }
+.modal-p { font-size: 13px; color: var(--gris); margin-bottom: 22px; line-height: 1.6; }
+.modal-p strong { color: var(--texte); }
+.modal-btns { display: flex; gap: 10px; }
+.modal-btn { flex: 1; padding: 13px; border-radius: 3px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; border: 1px solid; }
+.modal-btn.yes { background: rgba(139,0,0,.3); border-color: var(--rouge-vif); color: var(--rouge-vif); }
+.modal-btn.no  { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.15); color: var(--gris); }
+
+/* ============================================
+   ANIMATIONS
+============================================ */
+@keyframes fadeUp    { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes cardFlip  { from{opacity:0;transform:perspective(600px) rotateY(90deg) rotate(-.5deg)} to{opacity:1;transform:perspective(600px) rotateY(0deg) rotate(-.5deg)} }
+@keyframes sway      { 0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(4deg)} }
+@keyframes pulse     { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.12);opacity:.75} }
+@keyframes wave      { 0%,100%{height:5px} 50%{height:22px} }
+@keyframes flashAnim { 0%{opacity:.9} 100%{opacity:0} }
+@keyframes blinkRed  { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes twinkle   { 0%,100%{opacity:.15;transform:scale(1)} 50%{opacity:.8;transform:scale(1.4)} }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); }
+</style>
 </head>
 <body>
 
-<div id="flash"></div>
+<!-- FLASH -->
+<div class="flash-overlay" id="flashEl"></div>
 
-<div id="start-overlay">
-    <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">LANCER LA PARTIE</button>
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-box">
+    <div class="modal-t" id="modalTitle">Confirmation</div>
+    <div class="modal-p" id="modalText"></div>
+    <div class="modal-btns">
+      <button class="modal-btn no"  onclick="modalAnswer(false)">ANNULER</button>
+      <button class="modal-btn yes" onclick="modalAnswer(true)">CONFIRMER</button>
+    </div>
+  </div>
 </div>
 
-<audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
-<audio id="night-music" loop><source src="ambiance-nuit.mp3" type="audio/mpeg"></audio>
-
-<div class="container hidden" id="game-ui">
-    <h1>EL MAFIOSO</h1>
-
-    <div id="setup-screen">
-        <div id="player-inputs">
-            <input type="text" placeholder="SUSPECT 1" class="player-name">
-            <input type="text" placeholder="SUSPECT 2" class="player-name">
-            <input type="text" placeholder="SUSPECT 3" class="player-name">
-        </div>
-        <button onclick="addInput()">+ AJOUTER DOSSIER</button>
-        <button class="btn-main" onclick="startGame()">DÉBUTER L'ENQUÊTE</button>
-    </div>
-
-    <div id="reveal-screen" class="hidden">
-        <p style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 2px;">IDENTIFICATION REQUISE</p>
-        <span id="target-name">---</span>
-        <button id="show-btn" class="btn-main" onclick="showRole()">CONSULTER LE DOSSIER</button>
-        
-        <div id="role-display">
-            <div style="font-size: 0.6rem; text-align: left; padding: 5px 10px; color:#555; font-weight: bold;">CLASSIFIÉ // TOP SECRET</div>
-            <div id="role-image" class="role-image-container"></div>
-            <div id="role-text" class="stamp">---</div>
-            <button onclick="nextStep()" style="color:#000; border-color:#000; background:none; margin-bottom: 20px; width: 85%; font-weight: bold;">FERMER LE DOSSIER</button>
-        </div>
-    </div>
-
-    <div id="master-screen" class="hidden">
-        <div id="big-timer">05:00</div>
-        <div style="display: flex; justify-content: space-between;">
-            <button id="pause-btn" class="btn-pause" onclick="togglePause()">PAUSE</button>
-            <button class="btn-add" onclick="addMinute()">+1 MIN</button>
-        </div>
-        <div class="player-grid" id="elimination-list"></div>
-    </div>
+<!-- ===== ÉCRAN 1 : LAUNCH ===== -->
+<div class="screen active" id="screen-launch">
+  <div class="launch-inner">
+    <div class="launch-hat">🎩</div>
+    <div class="launch-logo">MAFIA</div>
+    <div class="launch-sub">◆ NUIT NOIRE ◆</div>
+    <div class="launch-quote">"Dans cette ville, personne n'est vraiment innocent.<br>La question est : qui ment le mieux ?"</div>
+    <button class="btn-launch" onclick="onLaunch()">ENTRER DANS L'OMBRE</button>
+  </div>
 </div>
 
-<div id="night-overlay" class="night-overlay hidden"></div>
+<!-- ===== ÉCRAN 2 : CONFIG ===== -->
+<div class="screen" id="screen-config">
+  <div class="cfg-header">
+    <h1>DOSSIER DE MISSION</h1>
+    <p>▸ Configuration des agents</p>
+  </div>
+  <div class="cfg-body">
+    <div class="roles-chips">
+      <div class="chip mafia"><span class="chip-n" id="cntMafia">0</span><span class="chip-l">🔴 Mafia</span></div>
+      <div class="chip police"><span class="chip-n" id="cntPolice">0</span><span class="chip-l">🔵 Police</span></div>
+      <div class="chip under"><span class="chip-n" id="cntUnder">0</span><span class="chip-l">🟢 Infiltré</span></div>
+    </div>
+    <div class="players-list" id="playersList"></div>
+    <button class="btn-add" onclick="addPlayer()">＋ AJOUTER UN AGENT</button>
+    <div class="opt-title">◆ OPTIONS DE PARTIE</div>
+    <div class="opt-row">
+      <div class="opt-label">Rôle Infiltré<small>Voit les mafieux la nuit</small></div>
+      <label class="toggle"><input type="checkbox" id="optUnder" checked onchange="updateChips()"><span class="tslider"></span></label>
+    </div>
+    <div class="opt-row">
+      <div class="opt-label">Durée du débat<small>Minutes par round</small></div>
+      <div class="stepper">
+        <button class="stp-btn" onclick="changeTime(-1)">−</button>
+        <span class="stp-val" id="debatTimeEl">5</span>
+        <button class="stp-btn" onclick="changeTime(1)">+</button>
+      </div>
+    </div>
+    <div class="opt-row">
+      <div class="opt-label">Voix off<small>Narration audio de nuit</small></div>
+      <label class="toggle"><input type="checkbox" id="optVoice" checked><span class="tslider"></span></label>
+    </div>
+  </div>
+  <div class="cfg-footer">
+    <button class="btn-start" onclick="startGame()">LANCER LA PARTIE ▶</button>
+    <div class="err-msg" id="cfgErr"></div>
+  </div>
+</div>
 
+<!-- ===== ÉCRAN 3 : REVEAL ===== -->
+<div class="screen" id="screen-reveal">
+  <div class="rv-wrap">
+    <div class="rv-turn" id="rvTurn">JOUEUR 1 / 4</div>
+    <div class="rv-name" id="rvName">JOUEUR</div>
+    <div class="rv-cover" id="rvCover" onclick="showRole()">
+      <div class="rv-cover-icon">📁</div>
+      <div class="rv-cover-txt">APPUYER POUR VOIR VOTRE DOSSIER</div>
+    </div>
+    <div class="role-card" id="roleCard">
+      <div class="rc-img-wrap" id="rcImg"></div>
+      <div class="rc-body">
+        <div class="rc-lbl">DOSSIER CONFIDENTIEL</div>
+        <div class="rc-title" id="rcTitle">—</div>
+        <div class="rc-desc"  id="rcDesc">—</div>
+        <div class="rc-stamp">CLASSIFIÉ</div>
+      </div>
+    </div>
+    <div class="rv-hint" id="rvHint"></div>
+    <button class="btn-next-rv" id="btnNextRv" onclick="nextReveal()">PASSER AU SUIVANT →</button>
+    <div class="rv-dots" id="rvDots"></div>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN 4 : NUIT ===== -->
+<div class="screen" id="screen-night">
+  <div class="night-bg"></div>
+  <div class="night-stars" id="nightStars"></div>
+  <div class="mf-overlay" id="mfOverlay">
+    <div class="mf-title">🕵️ INFILTRÉ — YEUX OUVERTS</div>
+    <div class="mf-sub">Voici les membres de la Mafia</div>
+    <div class="mf-list" id="mfList"></div>
+    <button class="btn-close-mf" onclick="closeMfOverlay()">J'AI MÉMORISÉ — FERMER</button>
+  </div>
+  <div class="night-body">
+    <div class="night-moon">🌑</div>
+    <div class="night-h1">LA NUIT</div>
+    <div class="night-sub">◆ Phase de nuit — Round <span id="nightRound">1</span> ◆</div>
+    <div class="night-status">
+      <div class="ns-icon" id="nsIcon">🎙️</div>
+      <div class="ns-txt"  id="nsTxt">Initialisation…</div>
+    </div>
+    <div class="waveform" id="waveform">
+      <div class="wb" style="height:7px"></div>
+      <div class="wb" style="height:14px"></div>
+      <div class="wb" style="height:5px"></div>
+      <div class="wb" style="height:19px"></div>
+      <div class="wb" style="height:9px"></div>
+      <div class="wb" style="height:22px"></div>
+      <div class="wb" style="height:7px"></div>
+      <div class="wb" style="height:14px"></div>
+      <div class="wb" style="height:5px"></div>
+    </div>
+    <div class="night-seq" id="nightSeq"></div>
+    <button class="btn-to-day" id="btnToDay" onclick="goToDay()">☀️ COMMENCER LE JOUR</button>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN 5 : JOUR ===== -->
+<div class="screen" id="screen-day">
+  <div class="day-header">
+    <div class="day-top">
+      <div class="day-round" id="dayRoundEl">ROUND 1</div>
+      <div class="day-title">☀️ DÉBAT</div>
+    </div>
+    <div class="chrono" id="chronoEl">05:00</div>
+    <div class="chrono-track"><div class="chrono-fill" id="chronoFill" style="width:100%"></div></div>
+  </div>
+  <div class="day-ctrl">
+    <button class="ctrl-btn ctrl-pause" id="btnPause" onclick="togglePause()">⏸ PAUSE</button>
+    <button class="ctrl-btn ctrl-plus"  onclick="addMinute()">＋1 MIN</button>
+    <button class="ctrl-btn ctrl-night" onclick="goToNight()">🌙 NUIT</button>
+  </div>
+  <div class="suspects-wrap">
+    <div class="susp-hdr">
+      SUSPECTS ACTIFS
+      <span class="susp-count" id="suspCount">0</span>
+    </div>
+    <div id="suspList"></div>
+  </div>
+</div>
+
+<!-- ===== ÉCRAN 6 : FIN ===== -->
+<div class="screen" id="screen-end">
+  <div class="end-wrap">
+    <div class="end-icon"   id="endIcon">🏆</div>
+    <div class="end-winner" id="endWinner">VICTOIRE</div>
+    <div class="end-sub"    id="endSub">—</div>
+    <div class="end-box">
+      <div class="end-box-title">▸ IDENTITÉS RÉVÉLÉES</div>
+      <div id="endList"></div>
+    </div>
+    <button class="btn-restart" onclick="restartGame()">NOUVELLE PARTIE</button>
+  </div>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT
+================================================================ -->
 <script>
-    let players = [];
-    let currentIndex = 0;
-    let timeLeft = 300;
-    let timerInterval = null;
-    let isPaused = false;
-    let isNightMode = false;
+'use strict';
 
-    const music = document.getElementById('bg-music');
-    const nightMusic = document.getElementById('night-music');
+/* ────────────────────────────────────────────
+   ÉTAT GLOBAL
+──────────────────────────────────────────── */
+const G = {
+  players:       [],   // {name, role, alive}
+  round:         1,
+  debatMinutes:  5,
+  hasUndercover: true,
+  voiceOn:       true,
+  audioUnlocked: false,
 
-    const audioObj = {
-        debut: new Audio('voix-debut.mp3'),
-        nuit: new Audio('voix-nuit.mp3'),
-        mafiaReveil: new Audio('voix-mafia-reveil.mp3'),
-        mafiaDodo: new Audio('voix-mafia-dodo.mp3'),
-        underReveil: new Audio('voix-under-reveil.mp3'),
-        jour: new Audio('voix-jour.mp3'),
-        soixante: new Audio('voix-60s.mp3'),
-        vote: new Audio('voix-chrono-fin.mp3')
+  revealIdx:  0,
+  roleShown:  false,
+
+  chronoSec:   300,
+  chronoTotal: 300,
+  chronoTmr:   null,
+  paused:      false,
+
+  nightDone:   false,
+  modalCb:     null,
+};
+
+/* ────────────────────────────────────────────
+   DÉFINITIONS RÔLES
+──────────────────────────────────────────── */
+const ROLE_DEF = {
+  mafia: {
+    label: 'MAFIEUX',
+    emoji: '🔫',
+    cls:   'mafia',
+    desc:  'Vous faites partie de la Mafia. La nuit, concertez-vous en silence pour désigner votre cible. Le jour, dissimulez votre identité coûte que coûte.',
+    code:  'CODE : ROUGE-7',
+    stamp: 'DANGEREUX',
+  },
+  police: {
+    label: 'CIVIL / POLICE',
+    emoji: '🔵',
+    cls:   'police',
+    desc:  'Vous êtes un civil honnête. Lors des débats, analysez les comportements suspects et votez pour éliminer un mafieux. La survie de la ville repose sur vous.',
+    code:  'CODE : BLEU-3',
+    stamp: 'CIVIL',
+  },
+  under: {
+    label: 'INFILTRÉ',
+    emoji: '🕵️',
+    cls:   'under',
+    desc:  'Vous êtes un agent infiltré. Cette nuit, vous verrez l'identité de TOUS les mafieux. Servez-vous de cette information sans vous démasquer.',
+    code:  'CODE : VERT-1',
+    stamp: 'CLASSIFIÉ',
+  },
+};
+
+/* ────────────────────────────────────────────
+   AUDIO
+──────────────────────────────────────────── */
+const AUDIO_FILES = {
+  ambiance:      'ambiance.mp3',
+  ambianceNuit:  'ambiance-nuit.mp3',
+  voixDebut:     'voix-debut.mp3',
+  voixNuit:      'voix-nuit.mp3',
+  voixMafiaRev:  'voix-mafia-reveil.mp3',
+  voixMafiaDodo: 'voix-mafia-dodo.mp3',
+  voixUnderRev:  'voix-under-reveil.mp3',
+  voixJour:      'voix-jour.mp3',
+  voix60s:       'voix-60s.mp3',
+  voixChronoFin: 'voix-chrono-fin.mp3',
+};
+
+const AU = {};   // stocke les éléments Audio
+
+function buildAudio(key, src) {
+  const a = new Audio();
+  a.preload = 'auto';
+  a.src = src;
+  return a;
+}
+
+function unlockAllAudio() {
+  /* Crée ET lance brièvement tous les audios pour lever le blocage iOS */
+  Object.entries(AUDIO_FILES).forEach(([key, src]) => {
+    const a = buildAudio(key, src);
+    a.volume = 0;
+    a.play().catch(() => {});
+    a.pause();
+    a.currentTime = 0;
+    a.volume = 1;
+    AU[key] = a;
+  });
+  AU.ambiance.loop = true;
+  AU.ambianceNuit.loop = true;
+  G.audioUnlocked = true;
+}
+
+/* Joue l'ambiance de jour */
+function playAmbiance() {
+  if (!G.audioUnlocked) return;
+  AU.ambianceNuit.pause();
+  AU.ambianceNuit.currentTime = 0;
+  AU.ambiance.currentTime = 0;
+  AU.ambiance.volume = 0.45;
+  AU.ambiance.play().catch(() => {});
+}
+
+/* Bascule vers ambiance nuit */
+function playAmbianceNuit() {
+  if (!G.audioUnlocked) return;
+  AU.ambiance.pause();
+  AU.ambiance.currentTime = 0;
+  AU.ambianceNuit.currentTime = 0;
+  AU.ambianceNuit.volume = 0.5;
+  AU.ambianceNuit.play().catch(() => {});
+}
+
+function stopAllAmbiance() {
+  if (!G.audioUnlocked) return;
+  AU.ambiance.pause();
+  AU.ambianceNuit.pause();
+}
+
+/* Joue une voix off → retourne une Promise résolue quand le son est fini */
+function playVoix(key, fallbackMs = 4000) {
+  return new Promise(resolve => {
+    if (!G.audioUnlocked || !G.voiceOn) { setTimeout(resolve, 1000); return; }
+    const a = AU[key];
+    if (!a) { setTimeout(resolve, fallbackMs); return; }
+    /* pause ambiance */
+    AU.ambiance.pause();
+    AU.ambianceNuit.pause();
+    a.currentTime = 0;
+    a.volume = 1;
+
+    let done = false;
+    const finish = () => {
+      if (done) return; done = true;
+      /* reprise ambiance nuit si on est la nuit */
+      if (G.nightRunning) {
+        AU.ambianceNuit.play().catch(() => {});
+      }
+      resolve();
     };
+    a.onended = finish;
+    a.onerror = finish;
+    /* fallback sécurité */
+    setTimeout(finish, fallbackMs + 2000);
+    a.play().catch(() => { setTimeout(finish, fallbackMs); });
+  });
+}
 
-    function initAudio() {
-        music.volume = 0.2;
-        music.play().catch(() => {});
-        
-        // Pré-charge mais en pause
-        nightMusic.volume = 0.2;
-        nightMusic.pause();
+/* TTS : annonce rôle éliminé */
+function speakElim(name, roleKey) {
+  if (!G.voiceOn) return;
+  if (!('speechSynthesis' in window)) return;
+  const roleLabel = ROLE_DEF[roleKey]?.label ?? roleKey;
+  const msg = new SpeechSynthesisUtterance(`${name} était ${roleLabel}.`);
+  msg.lang = 'fr-FR'; msg.rate = 0.9; msg.pitch = 0.85; msg.volume = 1;
+  /* pause ambiance pendant TTS */
+  stopAllAmbiance();
+  msg.onend   = () => { if (!G.paused) playAmbiance(); };
+  msg.onerror = () => { if (!G.paused) playAmbiance(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(msg);
+}
 
-        document.getElementById('start-overlay').classList.add('hidden');
-        document.getElementById('game-ui').classList.remove('hidden');
+/* ────────────────────────────────────────────
+   NAVIGATION ENTRE ÉCRANS
+──────────────────────────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+/* ────────────────────────────────────────────
+   UTILITAIRES UI
+──────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg, ms = 2800) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+function flashScreen() {
+  const el = document.getElementById('flashEl');
+  el.classList.remove('go');
+  void el.offsetWidth;
+  el.classList.add('go');
+  el.addEventListener('animationend', () => el.classList.remove('go'), { once: true });
+}
+
+function showModal(title, text, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').innerHTML   = text;
+  G.modalCb = cb;
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function modalAnswer(yes) {
+  document.getElementById('modalBg').classList.remove('show');
+  if (G.modalCb) G.modalCb(yes);
+  G.modalCb = null;
+}
+
+/* ────────────────────────────────────────────
+   ÉTOILES DÉCORATIVES
+──────────────────────────────────────────── */
+function buildStars() {
+  const c = document.getElementById('nightStars');
+  c.innerHTML = '';
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + .8;
+    s.style.cssText = `
+      width:${sz}px; height:${sz}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --dur:${(Math.random()*3+2).toFixed(1)}s;
+      --delay:-${(Math.random()*4).toFixed(1)}s;
+    `;
+    c.appendChild(s);
+  }
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 1 — LAUNCH
+──────────────────────────────────────────── */
+function onLaunch() {
+  unlockAllAudio();
+  showScreen('config');
+  initConfigScreen();
+  playAmbiance();
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 2 — CONFIG
+──────────────────────────────────────────── */
+function initConfigScreen() {
+  const list = document.getElementById('playersList');
+  list.innerHTML = '';
+  G.players = [];
+  /* 4 joueurs par défaut */
+  ['Alice','Bob','Charlie','Diana'].forEach(n => addPlayer(n));
+}
+
+function addPlayer(name = '') {
+  G.players.push({ name: '', role: null, alive: true });
+  renderPlayersList();
+  /* focus sur le dernier input */
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.player-input');
+    if (inputs.length) {
+      const last = inputs[inputs.length - 1];
+      if (name) last.value = name;
+      else last.focus();
+    }
+    updateChips();
+  }, 50);
+}
+
+function removePlayer(idx) {
+  G.players.splice(idx, 1);
+  renderPlayersList();
+  updateChips();
+}
+
+function renderPlayersList() {
+  const list = document.getElementById('playersList');
+  list.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+      <span class="player-num">${String(i + 1).padStart(2, '0')}</span>
+      <input class="player-input" type="text" placeholder="Nom de l'agent…"
+             value="${p.name}"
+             oninput="G.players[${i}].name=this.value; updateChips()"
+             onkeydown="if(event.key==='Enter'&&${i}===G.players.length-1) addPlayer()">
+      <button class="btn-rm" onclick="removePlayer(${i})" ${G.players.length <= 3 ? 'style="opacity:.2;pointer-events:none"' : ''}>✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function updateChips() {
+  const n = G.players.length;
+  G.hasUndercover = document.getElementById('optUnder').checked;
+  G.voiceOn       = document.getElementById('optVoice').checked;
+
+  /* Calcul rôles : 1 mafia tous les 3 joueurs, 1 infiltré si option, reste = police */
+  const mafiaCount = Math.max(1, Math.floor(n / 3));
+  const underCount = (G.hasUndercover && n >= 3) ? 1 : 0;
+  const policeCount = n - mafiaCount - underCount;
+
+  document.getElementById('cntMafia').textContent  = mafiaCount;
+  document.getElementById('cntPolice').textContent = Math.max(0, policeCount);
+  document.getElementById('cntUnder').textContent  = underCount;
+}
+
+function changeTime(delta) {
+  G.debatMinutes = Math.min(15, Math.max(1, G.debatMinutes + delta));
+  document.getElementById('debatTimeEl').textContent = G.debatMinutes;
+}
+
+function startGame() {
+  /* Lire les noms */
+  const inputs = document.querySelectorAll('.player-input');
+  inputs.forEach((inp, i) => {
+    G.players[i].name = inp.value.trim();
+  });
+
+  /* Validation */
+  const empty = G.players.some(p => !p.name);
+  if (empty) { showErr('Tous les agents doivent avoir un nom.'); return; }
+  if (G.players.length < 3) { showErr('Minimum 3 joueurs requis.'); return; }
+  const hasDupe = new Set(G.players.map(p => p.name.toLowerCase())).size !== G.players.length;
+  if (hasDupe) { showErr('Deux agents ne peuvent pas avoir le même nom.'); return; }
+
+  document.getElementById('cfgErr').textContent = '';
+  distributeRoles();
+  G.round = 1;
+  G.players.forEach(p => p.alive = true);
+  buildRevealScreen();
+  showScreen('reveal');
+}
+
+function showErr(msg) {
+  const el = document.getElementById('cfgErr');
+  el.textContent = msg;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+}
+
+/* ────────────────────────────────────────────
+   DISTRIBUTION DES RÔLES
+──────────────────────────────────────────── */
+function distributeRoles() {
+  const n = G.players.length;
+  const mafiaCount = Math.max(1, Math.floor(n / 3));
+  const underCount = (G.hasUndercover && n >= 3) ? 1 : 0;
+  const policeCount = n - mafiaCount - underCount;
+
+  /* Construire tableau de rôles */
+  const roles = [];
+  for (let i = 0; i < mafiaCount;  i++) roles.push('mafia');
+  for (let i = 0; i < underCount;  i++) roles.push('under');
+  for (let i = 0; i < policeCount; i++) roles.push('police');
+
+  /* Mélanger (Fisher-Yates) */
+  for (let i = roles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [roles[i], roles[j]] = [roles[j], roles[i]];
+  }
+
+  G.players.forEach((p, i) => { p.role = roles[i]; p.alive = true; });
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 3 — REVEAL
+──────────────────────────────────────────── */
+function buildRevealScreen() {
+  G.revealIdx = 0;
+  G.roleShown = false;
+  buildDots();
+  loadRevealStep();
+}
+
+function buildDots() {
+  const c = document.getElementById('rvDots');
+  c.innerHTML = '';
+  G.players.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'rv-dot' + (i === 0 ? ' cur' : '');
+    c.appendChild(d);
+  });
+
+function loadRevealStep() {
+  const idx = G.revealIdx;
+  const p   = G.players[idx];
+
+  /* Reset UI */
+  G.roleShown = false;
+  document.getElementById('rvCover').style.display = 'block';
+  document.getElementById('roleCard').classList.remove('show');
+  document.getElementById('btnNextRv').classList.remove('show');
+  document.getElementById('rvHint').textContent = '';
+
+  /* Infos joueur */
+  document.getElementById('rvTurn').textContent =
+    `JOUEUR ${idx + 1} / ${G.players.length}`;
+  document.getElementById('rvName').textContent = p.name.toUpperCase();
+
+  /* Dots */
+  document.querySelectorAll('.rv-dot').forEach((d, i) => {
+    d.className = 'rv-dot' + (i < idx ? ' done' : i === idx ? ' cur' : '');
+  });
+}
+
+function showRole() {
+  if (G.roleShown) return;
+  G.roleShown = true;
+
+  const p   = G.players[G.revealIdx];
+  const def = ROLE_DEF[p.role];
+
+  /* Cache le cover */
+  document.getElementById('rvCover').style.display = 'none';
+
+  /* Remplis la carte */
+  const img = document.getElementById('rcImg');
+  img.className = `rc-img-wrap ${def.cls}`;
+  img.textContent = def.emoji;
+
+  const title = document.getElementById('rcTitle');
+  title.className = `rc-title ${def.cls}`;
+  title.textContent = def.label;
+
+  document.getElementById('rcDesc').textContent = def.desc;
+
+  /* Affiche la carte */
+  document.getElementById('roleCard').classList.add('show');
+
+  /* Hint */
+  const hint = document.getElementById('rvHint');
+  hint.textContent = 'Mémorisez votre rôle, puis passez le téléphone.';
+
+  /* Bouton suivant */
+  setTimeout(() => {
+    document.getElementById('btnNextRv').classList.add('show');
+  }, 1200);
+}
+
+function nextReveal() {
+  G.revealIdx++;
+  if (G.revealIdx >= G.players.length) {
+    /* Tous les joueurs ont vu leur rôle */
+    buildStars();
+    startNightPhase();
+    return;
+  }
+  loadRevealStep();
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 4 — NUIT
+──────────────────────────────────────────── */
+const NIGHT_STEPS = [
+  { key: 'debut',    icon: '🎙️', txt: 'Introduction du Maître du Jeu',      vo: 'voixDebut',    fallback: 5000  },
+  { key: 'nuit',     icon: '🌑', txt: 'Tout le monde ferme les yeux…',       vo: 'voixNuit',     fallback: 4000  },
+  { key: 'mafrev',   icon: '🔫', txt: 'La Mafia se réveille et se désigne…', vo: 'voixMafiaRev', fallback: 5000  },
+  { key: 'mafdodo',  icon: '😴', txt: 'La Mafia se rendort…',                vo: 'voixMafiaDodo',fallback: 3500  },
+  { key: 'underrev', icon: '🕵️', txt: 'L\'Infiltré ouvre les yeux…',         vo: 'voixUnderRev', fallback: 4500  },
+  { key: 'jour',     icon: '☀️', txt: 'Tout le monde se réveille !',         vo: 'voixJour',     fallback: 4000  },
+];
+
+function startNightPhase() {
+  G.nightDone   = false;
+  G.nightRunning = true;
+
+  /* Affiche l'écran nuit */
+  showScreen('night');
+  document.getElementById('nightRound').textContent = G.round;
+  document.getElementById('btnToDay').classList.remove('show');
+  document.getElementById('mfOverlay').classList.remove('show');
+
+  /* Ambiance nuit */
+  playAmbianceNuit();
+
+  /* Construit la liste des étapes */
+  buildNightSeq();
+
+  /* Lance la séquence */
+  runNightSequence();
+}
+
+function buildNightSeq() {
+  const steps = getActiveSteps();
+  const c = document.getElementById('nightSeq');
+  c.innerHTML = '';
+  steps.forEach(st => {
+    const row = document.createElement('div');
+    row.className = 'seq-row';
+    row.id = `seq-${st.key}`;
+    row.innerHTML = `
+      <span class="seq-icon">${st.icon}</span>
+      <span class="seq-txt">${st.txt}</span>
+      <span class="seq-chk"></span>
+    `;
+    c.appendChild(row);
+  });
+}
+
+function getActiveSteps() {
+  /* Si pas d'infiltré, retire l'étape under */
+  return NIGHT_STEPS.filter(s => {
+    if (s.key === 'underrev' && !G.hasUndercover) return false;
+    return true;
+  });
+}
+
+async function runNightSequence() {
+  const steps = getActiveSteps();
+
+  for (let i = 0; i < steps.length; i++) {
+    const st = steps[i];
+
+    /* Met à jour UI */
+    setSeqCurrent(st.key);
+    setNightStatus(st.icon, st.txt);
+    setWaveform(true);
+
+    /* Étape spéciale : overlay infiltré */
+    if (st.key === 'underrev') {
+      await playVoix(st.vo, st.fallback);
+      showMfOverlay();
+      /* Attend que l'utilisateur ferme l'overlay */
+      await waitForMfClose();
+    } else {
+      await playVoix(st.vo, st.fallback);
+      /* Petite pause entre les étapes */
+      await sleep(600);
     }
 
-    async function playVoice(key, durationFallback = 4000) {
-        return new Promise((resolve) => {
-            // On met TOUT en pause pendant que la voix parle
-            music.pause();
-            nightMusic.pause();
+    setSeqDone(st.key);
+    setWaveform(false);
+  }
 
-            const snd = audioObj[key];
-            let hasPlayed = false;
+  /* Séquence terminée */
+  G.nightRunning = false;
+  setNightStatus('✅', 'La nuit est terminée. Réveillez tous les joueurs.');
+  document.getElementById('btnToDay').classList.add('show');
+}
 
-            if (snd) {
-                snd.load();
-                snd.play().then(() => { hasPlayed = true; }).catch(() => {});
-                snd.onended = () => {
-                    // On relance la musique appropriée selon le mode
-                    if (isNightMode) nightMusic.play(); else music.play();
-                    resolve();
-                };
-            }
-            
-            // Sécurité : passage forcé si bug audio
-            setTimeout(() => {
-                if (!hasPlayed || (snd && snd.paused)) {
-                    if (isNightMode) nightMusic.play(); else music.play();
-                    resolve();
-                }
-            }, durationFallback);
-        });
+function setSeqCurrent(key) {
+  document.querySelectorAll('.seq-row').forEach(r => {
+    r.classList.remove('current');
+  });
+  const el = document.getElementById(`seq-${key}`);
+  if (el) el.classList.add('current');
+}
+
+function setSeqDone(key) {
+  const el = document.getElementById(`seq-${key}`);
+  if (!el) return;
+  el.classList.remove('current');
+  el.classList.add('done');
+  el.querySelector('.seq-chk').textContent = '✔';
+}
+
+function setNightStatus(icon, txt) {
+  document.getElementById('nsIcon').textContent = icon;
+  document.getElementById('nsTxt').textContent  = txt;
+}
+
+function setWaveform(active) {
+  const wf = document.getElementById('waveform');
+  active ? wf.classList.add('active') : wf.classList.remove('active');
+}
+
+/* ── Overlay Infiltré ── */
+let mfOverlayResolve = null;
+
+function showMfOverlay() {
+  const mafia = G.players.filter(p => p.role === 'mafia' && p.alive);
+  const list  = document.getElementById('mfList');
+  list.innerHTML = '';
+  mafia.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'mf-item';
+    item.innerHTML = `<span class="mf-item-icon">🔫</span>
+                      <span class="mf-item-name">${p.name}</span>`;
+    list.appendChild(item);
+  });
+  document.getElementById('mfOverlay').classList.add('show');
+}
+
+function waitForMfClose() {
+  return new Promise(resolve => { mfOverlayResolve = resolve; });
+}
+
+function closeMfOverlay() {
+  document.getElementById('mfOverlay').classList.remove('show');
+  if (mfOverlayResolve) { mfOverlayResolve(); mfOverlayResolve = null; }
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 5 — JOUR
+──────────────────────────────────────────── */
+function goToDay() {
+  G.nightRunning = false;
+  G.paused       = false;
+
+  /* Réinitialise le chrono */
+  G.chronoSec   = G.debatMinutes * 60;
+  G.chronoTotal = G.chronoSec;
+
+  /* UI */
+  document.getElementById('dayRoundEl').textContent = `ROUND ${G.round}`;
+  buildSuspectsList();
+  updateChronoDisplay();
+  updateChronoBar();
+  document.getElementById('btnPause').textContent = '⏸ PAUSE';
+  document.getElementById('chronoEl').classList.remove('urgent');
+
+  showScreen('day');
+  playAmbiance();
+
+  /* Démarre le chrono */
+  startChrono();
+
+  /* Voix 60 secondes */
+  scheduleVoix60();
+}
+
+function buildSuspectsList() {
+  const list = document.getElementById('suspList');
+  list.innerHTML = '';
+  const alive = G.players.filter(p => p.alive);
+  document.getElementById('suspCount').textContent = alive.length;
+
+  G.players.forEach((p, i) => {
+    if (!p.alive) return;
+    const card = document.createElement('div');
+    card.className = 'susp-card';
+    card.id = `susp-${i}`;
+    card.innerHTML = `
+      <div class="susp-avatar">${p.name.charAt(0).toUpperCase()}</div>
+      <div class="susp-info">
+        <div class="susp-name">${p.name}</div>
+        <div class="susp-status">Suspect actif</div>
+      </div>
+      <button class="btn-elim" onclick="confirmElim(${i})">ÉLIMINER</button>
+      <span class="elim-tag">✕ ÉLIMINÉ</span>
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* ── Chrono ── */
+let voix60Done   = false;
+let voix60Timer  = null;
+
+function startChrono() {
+  clearInterval(G.chronoTmr);
+  voix60Done = false;
+  G.chronoTmr = setInterval(tickChrono, 1000);
+}
+
+function tickChrono() {
+  if (G.paused) return;
+  G.chronoSec--;
+  updateChronoDisplay();
+  updateChronoBar();
+
+  if (G.chronoSec <= 0) {
+    clearInterval(G.chronoTmr);
+    G.chronoSec = 0;
+    document.getElementById('chronoEl').classList.add('urgent');
+    playVoix('voixChronoFin', 4000);
+    showToast('⏱ Temps écoulé ! Votez maintenant.');
+  } else if (G.chronoSec === 60 && !voix60Done) {
+    voix60Done = true;
+    playVoix('voix60s', 3500);
+    showToast('⚠️ 60 secondes restantes !');
+  } else if (G.chronoSec <= 30) {
+    document.getElementById('chronoEl').classList.add('urgent');
+  }
+}
+
+function scheduleVoix60() {
+  /* Réinitialise le flag au démarrage */
+  voix60Done = false;
+}
+
+function updateChronoDisplay() {
+  const m = String(Math.floor(G.chronoSec / 60)).padStart(2, '0');
+  const s = String(G.chronoSec % 60).padStart(2, '0');
+  document.getElementById('chronoEl').textContent = `${m}:${s}`;
+}
+
+function updateChronoBar() {
+  const pct = Math.max(0, (G.chronoSec / G.chronoTotal) * 100);
+  document.getElementById('chronoFill').style.width = `${pct}%`;
+}
+
+function togglePause() {
+  G.paused = !G.paused;
+  const btn = document.getElementById('btnPause');
+  if (G.paused) {
+    btn.textContent = '▶ REPRENDRE';
+    stopAllAmbiance();
+    showToast('⏸ Chrono en pause');
+  } else {
+    btn.textContent = '⏸ PAUSE';
+    playAmbiance();
+    showToast('▶ Chrono repris');
+  }
+}
+
+function addMinute() {
+  G.chronoSec   += 60;
+  G.chronoTotal += 60;
+  updateChronoDisplay();
+  updateChronoBar();
+  document.getElementById('chronoEl').classList.remove('urgent');
+  showToast('＋1 minute ajoutée');
+}
+
+function goToNight() {
+  showModal(
+    'Phase de nuit',
+    'Voulez-vous passer à la phase de nuit ?<br><strong>Le chrono sera arrêté.</strong>',
+    yes => {
+      if (!yes) return;
+      clearInterval(G.chronoTmr);
+      G.round++;
+      buildStars();
+      startNightPhase();
     }
+  );
+}
 
-    function addInput() {
-        const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'SUSPECT ' + (document.querySelectorAll('.player-name').length + 1);
-        input.className = 'player-name';
-        document.getElementById('player-inputs').appendChild(input);
+/* ── Élimination ── */
+function confirmElim(idx) {
+  const p = G.players[idx];
+  showModal(
+    'Élimination',
+    `Éliminer <strong>${p.name}</strong> du jeu ?<br>Son rôle sera révélé à tous.`,
+    yes => {
+      if (!yes) return;
+      elimPlayer(idx);
     }
+  );
+}
 
-    function startGame() {
-        const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-        if (names.length < 3) return alert("3 suspects min.");
-        let roles = [];
-        let mCount = Math.max(1, Math.floor(names.length / 3));
-        for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX', t:'mafia'});
-        if(names.length >= 6) roles.push({n:'INFILTRÉ', t:'undercover'});
-        while(roles.length < names.length) roles.push({n:'POLICE', t:'police'});
-        roles.sort(() => Math.random() - 0.5);
-        players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
-        document.getElementById('setup-screen').classList.add('hidden');
-        document.getElementById('reveal-screen').classList.remove('hidden');
-        updateReveal();
+function elimPlayer(idx) {
+  const p = G.players[idx];
+  p.alive = false;
+
+  /* Flash */
+  flashScreen();
+
+  /* Annonce rôle via TTS */
+  speakElim(p.name, p.role);
+
+  /* Met à jour la carte visuellement */
+  const card = document.getElementById(`susp-${idx}`);
+  if (card) {
+    card.classList.add('elim');
+    card.querySelector('.susp-status').textContent = `Rôle : ${ROLE_DEF[p.role].label}`;
+  }
+
+  /* Met à jour le compteur */
+  const alive = G.players.filter(pl => pl.alive).length;
+  document.getElementById('suspCount').textContent = alive;
+
+  /* Toast */
+  showToast(`💀 ${p.name} — ${ROLE_DEF[p.role].label}`);
+
+  /* Vérifie conditions de victoire */
+  setTimeout(() => checkVictory(), 2200);
+}
+
+function checkVictory() {
+  const alivePlayers = G.players.filter(p => p.alive);
+  const aliveMafia   = alivePlayers.filter(p => p.role === 'mafia');
+  const alivePolice  = alivePlayers.filter(p => p.role !== 'mafia');
+
+  if (aliveMafia.length === 0) {
+    endGame('police');
+    return;
+  }
+  /* La Mafia gagne si elle égale ou dépasse les non-mafieux */
+  if (aliveMafia.length >= alivePolice.length) {
+    endGame('mafia');
+    return;
+  }
+}
+
+/* ────────────────────────────────────────────
+   ÉCRAN 6 — FIN DE PARTIE
+──────────────────────────────────────────── */
+function endGame(winner) {
+  clearInterval(G.chronoTmr);
+  stopAllAmbiance();
+
+  /* Flash final */
+  flashScreen();
+
+  /* Contenu */
+  if (winner === 'police') {
+    document.getElementById('endIcon').textContent   = '🏆';
+    document.getElementById('endWinner').textContent = 'LA POLICE GAGNE';
+    document.getElementById('endWinner').className   = 'end-winner police';
+    document.getElementById('endSub').textContent    = 'Justice est rendue. La Mafia est démantelée.';
+  } else {
+    document.getElementById('endIcon').textContent   = '🔫';
+    document.getElementById('endWinner').textContent = 'LA MAFIA GAGNE';
+    document.getElementById('endWinner').className   = 'end-winner mafia';
+    document.getElementById('endSub').textContent    = 'L\'ombre règne sur la ville.';
+  }
+
+  /* Liste des joueurs */
+  const list = document.getElementById('endList');
+  list.innerHTML = '';
+  G.players.forEach(p => {
+    const def = ROLE_DEF[p.role];
+    const row = document.createElement('div');
+    row.className = 'end-row';
+    row.innerHTML = `
+      <span style="font-size:18px">${def.emoji}</span>
+      <span style="flex:1;font-size:14px;color:var(--texte)">${p.name}</span>
+      <span style="font-size:11px;color:${p.alive ? 'var(--or)' : 'var(--gris)'};
+             letter-spacing:1px">${def.label}</span>
+      <span style="font-size:10px;color:${p.alive ? '#5a5' : 'var(--rouge-vif)'};
+             margin-left:8px">${p.alive ? '✔' : '✕'}</span>
+    `;
+    list.appendChild(row);
+  });
+
+  showScreen('end');
+
+  /* TTS victoire */
+  setTimeout(() => {
+    const msg = winner === 'police'
+      ? 'La police a gagné. La mafia est démantelée.'
+      : 'La mafia a gagné. L\'ombre règne sur la ville.';
+    if (G.voiceOn && 'speechSynthesis' in window) {
+      const utt = new SpeechSynthesisUtterance(msg);
+      utt.lang = 'fr-FR'; utt.rate = 0.85; utt.pitch = 0.8;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utt);
     }
+  }, 800);
+}
 
-    function updateReveal() {
-        document.getElementById('target-name').innerText = players[currentIndex].name;
-        document.getElementById('role-display').style.display = 'none';
-        document.getElementById('show-btn').classList.remove('hidden');
+/* ────────────────────────────────────────────
+   RESTART
+──────────────────────────────────────────── */
+function restartGame() {
+  clearInterval(G.chronoTmr);
+  stopAllAmbiance();
+  window.speechSynthesis && window.speechSynthesis.cancel();
+
+  /* Réinitialise l'état */
+  G.round        = 1;
+  G.paused       = false;
+  G.nightDone    = false;
+  G.nightRunning = false;
+
+  showScreen('config');
+  initConfigScreen();
+  playAmbiance();
+}
+
+/* ────────────────────────────────────────────
+   HELPERS
+──────────────────────────────────────────── */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/* ────────────────────────────────────────────
+   INIT AU CHARGEMENT
+──────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  /* Injection du CSS manquant pour éléments dynamiques */
+  const style = document.createElement('style');
+  style.textContent = `
+    .flash-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #fff; opacity: 0; pointer-events: none;
     }
-
-    function showRole() {
-        const r = players[currentIndex].role;
-        document.getElementById('role-text').innerText = r.n;
-        // Correction forcée du nom de l'image
-        document.getElementById('role-image').style.backgroundImage = `url('role-${r.t}.png')`;
-        document.getElementById('role-display').style.display = 'block';
-        document.getElementById('show-btn').classList.add('hidden');
+    .flash-overlay.go {
+      animation: flashAnim .45s ease-out forwards;
     }
-
-    function nextStep() {
-        currentIndex++;
-        if (currentIndex < players.length) updateReveal();
-        else startMasterMode();
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20,20,20,.95);
+      border: 1px solid rgba(201,168,76,.3);
+      color: var(--texte); font-family: var(--font-mono);
+      font-size: 12px; letter-spacing: 1px;
+      padding: 11px 22px; border-radius: 24px;
+      white-space: nowrap; z-index: 8000;
+      opacity: 0; transition: all .3s; pointer-events: none;
     }
-
-    async function startMasterMode() {
-        document.getElementById('reveal-screen').classList.add('hidden');
-        document.getElementById('master-screen').classList.remove('hidden');
-        const night = document.getElementById('night-overlay');
-        night.classList.remove('hidden');
-        
-        // --- BASCULE RÉELLE NUIT ---
-        isNightMode = true;
-        music.pause();
-        nightMusic.currentTime = 0;
-        nightMusic.play().catch(() => {});
-
-        await playVoice('debut', 6000);
-        await playVoice('nuit', 5000);
-        await new Promise(r => setTimeout(r, 2000));
-        
-        // APPEL MAFIEUX
-        await playVoice('mafiaReveil', 6000);
-        await new Promise(r => setTimeout(r, 10000)); // Augmenté à 10s pour être sûr
-        await playVoice('mafiaDodo', 5000);
-
-        if(players.some(p => p.role.t === 'undercover')) {
-            await new Promise(r => setTimeout(r, 2000));
-            await playVoice('underReveil', 6000);
-            await new Promise(r => setTimeout(r, 7000));
-        }
-
-        // --- BASCULE RÉELLE JOUR ---
-        isNightMode = false;
-        nightMusic.pause();
-        night.classList.add('hidden');
-        music.play().catch(() => {});
-        
-        await playVoice('jour', 5000);
-        renderPlayers();
-        startTimer();
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 7000;
+      background: rgba(0,0,0,.88);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px;
     }
-
-    function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pause-btn').innerText = isPaused ? "REPRENDRE" : "PAUSE";
-        document.getElementById('pause-btn').style.color = isPaused ? "var(--red)" : "#ffcf1b";
+    .modal-bg.show { display: flex; }
+    .modal-box {
+      background: #111; border: 1px solid rgba(201,168,76,.3);
+      border-radius: 6px; padding: 28px 22px;
+      width: 100%; max-width: 310px;
+      animation: fadeUp .3s both;
     }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (isPaused) return;
-            timeLeft--;
-            let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
-            document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            if (timeLeft === 60) playVoice('soixante', 3000);
-            if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote', 5000); }
-        }, 1000);
+    .modal-t { font-family: var(--font-titre); font-size: 20px; color: var(--or); margin-bottom: 8px; letter-spacing: 2px; }
+    .modal-p { font-size: 13px; color: var(--gris); margin-bottom: 22px; line-height: 1.6; }
+    .modal-p strong { color: var(--texte); }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-btn { flex: 1; padding: 13px; border-radius: 3px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; border: 1px solid; }
+    .modal-btn.yes { background: rgba(139,0,0,.3); border-color: var(--rouge-vif); color: var(--rouge-vif); }
+    .modal-btn.no  { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.15); color: var(--gris); }
+    .btn-restart {
+      width: 100%; padding: 17px;
+      background: linear-gradient(135deg,var(--rouge),#3d0000);
+      border: 2px solid var(--or); border-radius: 3px;
+      color: var(--or-clair); font-family: var(--font-titre);
+      font-size: 15px; letter-spacing: 3px; cursor: pointer;
     }
-
-    function renderPlayers() {
-        const list = document.getElementById('elimination-list');
-        list.innerHTML = "";
-        players.forEach((p, i) => {
-            const card = document.createElement('div');
-            card.className = `player-card ${p.alive ? '' : 'dead'}`;
-            card.innerText = p.name;
-            card.onclick = () => eliminate(i);
-            list.appendChild(card);
-        });
+    .btn-restart:active { transform: scale(.98); }
+    .end-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+    .end-row:last-child { border-bottom: none; }
+    .star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: twinkle var(--dur) ease-in-out var(--delay) infinite;
     }
+  `;
+  document.head.appendChild(style);
 
-    function addMinute() { timeLeft += 60; }
-
-    async function eliminate(i) {
-        if(!players[i].alive) return;
-        const flash = document.getElementById('flash');
-        flash.style.opacity = '1';
-        setTimeout(() => { flash.style.opacity = '0'; flash.style.transition = 'opacity 0.5s'; }, 50);
-
-        players[i].alive = false;
-        renderPlayers();
-        
-        // Pause musique pour synthèse vocale
-        if (isNightMode) nightMusic.pause(); else music.pause();
-        
-        const s = new SpeechSynthesisUtterance(players[i].name + " était " + players[i].role.n);
-        s.lang = 'fr-FR'; 
-        s.onend = () => { if (isNightMode) nightMusic.play(); else music.play(); };
-        window.speechSynthesis.speak(s);
-        
-        if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
-            alert("AFFAIRE CLASSÉE : LA POLICE GAGNE !");
-            location.reload();
-        }
-    }
+  /* Initialise les chips au cas où */
+  updateChips();
+});
 </script>
 </body>
 </html>
