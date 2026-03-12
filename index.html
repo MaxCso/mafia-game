@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="icon.jpg">
+    <link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO - NOIR</title>
     <style>
         :root {
@@ -27,7 +29,6 @@
             transition: background 1s ease;
         }
 
-        /* Animation de Tension (Halo rouge pulsant) */
         @keyframes pulseTension {
             0% { box-shadow: inset 0 0 50px rgba(255, 49, 49, 0.2); }
             50% { box-shadow: inset 0 0 150px rgba(255, 49, 49, 0.5); }
@@ -61,7 +62,6 @@
 
         #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; text-transform: uppercase; }
 
-        /* Dossier Style Photo */
         #role-display {
             background: var(--paper); color: var(--text-dark);
             margin: 20px 0; padding: 0; border-radius: 2px;
@@ -80,37 +80,15 @@
             display: inline-block; transform: rotate(-12deg); margin-bottom: 25px;
         }
 
-        /* Timer et Liste */
         #big-timer { font-size: 4.5rem; color: #fff; margin: 10px 0; font-weight: bold; }
         .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .player-card { padding: 15px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.9rem; font-weight: bold; }
         .player-card.dead { opacity: 0.1; text-decoration: line-through; }
 
-        /* Overlays */
         .hidden { display: none !important; }
-        
         #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
-        
-        /* Splash Screen */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000 url('splash.png') no-repeat center center;
-            background-size: cover; z-index: 1500;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease;
-        }
-
         .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
-        
-        /* Flash d'interrogatoire */
         #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; opacity:0; pointer-events:none; }
-        
-        /* Loader simple */
-        .loader {
-            width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--red);
-            border-radius: 50%; animation: spin 1s linear infinite; margin-top: 20px;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -119,11 +97,6 @@
 
 <div id="start-overlay">
     <button class="btn-main" style="width: auto; padding: 20px 50px;" onclick="initAudio()">LANCER LA PARTIE</button>
-</div>
-
-<div id="splash-screen" class="hidden">
-    <h1 style="color:white;">TRANSFERT DES DOSSIERS...</h1>
-    <div class="loader"></div>
 </div>
 
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
@@ -137,12 +110,12 @@
             <input type="text" placeholder="SUSPECT 2" class="player-name">
             <input type="text" placeholder="SUSPECT 3" class="player-name">
         </div>
-        <button onclick="addInput()" style="margin-top: 10px;">+ AJOUTER DOSSIER</button>
+        <button onclick="addInput()">+ AJOUTER DOSSIER</button>
         <button class="btn-main" onclick="startGame()" style="margin-top: 20px;">DÉBUTER L'ENQUÊTE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 2px;">IDENTIFICATION REQUÉRUE</p>
+        <p style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 2px;">IDENTIFICATION REQUISE</p>
         <span id="target-name">---</span>
         <button id="show-btn" class="btn-main" onclick="showRole()">CONSULTER LE DOSSIER</button>
         
@@ -189,18 +162,7 @@
         music.volume = 0.2;
         music.play().catch(() => {});
         document.getElementById('start-overlay').classList.add('hidden');
-        
-        // Affichage du Splash Screen
-        const splash = document.getElementById('splash-screen');
-        splash.classList.remove('hidden');
-        
-        setTimeout(() => {
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.classList.add('hidden');
-                document.getElementById('game-ui').classList.remove('hidden');
-            }, 1000);
-        }, 3000); // 3 secondes de chargement immersif
+        document.getElementById('game-ui').classList.remove('hidden');
     }
 
     async function playVoice(key, durationFallback = 4000) {
@@ -208,12 +170,27 @@
             music.pause();
             const snd = audioObj[key];
             let hasPlayed = false;
+            
             if (snd) {
+                snd.load(); // Forcer le rechargement pour mobile
                 snd.currentTime = 0;
                 snd.play().then(() => { hasPlayed = true; }).catch(e => console.log("Audio block"));
-                snd.onended = () => { music.play(); resolve(); };
+                
+                snd.onended = () => {
+                    setTimeout(() => {
+                        music.play();
+                        resolve();
+                    }, 500); // Petite pause de sécurité
+                };
             }
-            setTimeout(() => { if (!hasPlayed || snd.paused) { music.play(); resolve(); } }, durationFallback);
+            
+            // Sécurité mobile : si le son ne finit pas, on débloque après le délai imparti
+            setTimeout(() => {
+                if (!hasPlayed || (snd && snd.paused)) {
+                    music.play();
+                    resolve();
+                }
+            }, durationFallback);
         });
     }
 
@@ -274,21 +251,24 @@
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
         
+        // --- SÉQUENCE DE NUIT ---
         await playVoice('debut', 6000);
-        await playVoice('nuit', 4000);
+        await playVoice('nuit', 5000);
         await new Promise(r => setTimeout(r, 2000));
-        await playVoice('mafiaReveil', 5000);
-        await new Promise(r => setTimeout(r, 8000));
-        await playVoice('mafiaDodo', 4000);
+        
+        // C'est ici que l'instruction Mafieux est lancée
+        await playVoice('mafiaReveil', 6000);
+        await new Promise(r => setTimeout(r, 8000)); // Temps pour se regarder
+        await playVoice('mafiaDodo', 5000);
 
         if(players.some(p => p.role.t === 'undercover')) {
             await new Promise(r => setTimeout(r, 2000));
-            await playVoice('underReveil', 5000);
+            await playVoice('underReveil', 6000);
             await new Promise(r => setTimeout(r, 7000));
         }
 
         night.classList.add('hidden');
-        await playVoice('jour', 4000);
+        await playVoice('jour', 5000);
         renderPlayers();
         startTimer();
     }
