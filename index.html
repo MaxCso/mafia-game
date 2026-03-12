@@ -3,143 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Ultimate Experience</title>
+    <title>MAFIA - Modern Edition</title>
     <style>
         :root {
-            --red: #ff3131; --blue: #00d2ff; --gold: #ffcf1b;
-            --bg: #050505; --card: #121214; --border: #222;
+            --white: #FFFFFF;
+            --light-grey: #F7F7F7;
+            --border-grey: #E5E5E5;
+            --text-dark: #4B4B4B;
+            --mafia-red: #FF4B4B;
+            --police-blue: #1CB0F6;
+            --timer-gold: #FFC800;
+            --success-green: #58CC02;
         }
 
         body {
-            font-family: 'Courier New', Courier, monospace;
-            background: var(--bg); color: #eee;
-            margin: 0; min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-grey);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background 0.5s ease;
         }
 
-        /* Conteneur principal avec effet de vitre */
         .container {
-            max-width: 400px; width: 92%; padding: 30px;
-            border-radius: 28px; background: var(--card);
-            border: 1px solid var(--border);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9);
-            position: relative; overflow: hidden;
+            width: 90%;
+            max-width: 420px;
+            background: var(--white);
+            border: 2px solid var(--border-grey);
+            border-bottom: 6px solid var(--border-grey);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
         }
 
-        /* Scoreboard Stylisé */
-        .scoreboard {
-            display: flex; justify-content: space-around;
-            background: rgba(255,255,255,0.03);
-            padding: 12px; border-radius: 50px; margin-bottom: 25px;
-            border: 1px solid var(--border);
-        }
-        .score-item { font-size: 0.7rem; letter-spacing: 1px; }
-        .score-item span { display: block; font-size: 1.2rem; font-weight: 900; margin-top: 4px; }
+        h1 { color: var(--police-blue); font-size: 2rem; margin-bottom: 20px; text-transform: lowercase; font-weight: 900; }
 
-        h1 {
-            font-size: 2.2rem; color: var(--red);
-            text-transform: uppercase; letter-spacing: 12px;
-            margin: 0 0 30px 0; text-shadow: 0 0 15px rgba(255, 49, 49, 0.4);
-        }
-
-        /* Inputs & Boutons */
+        /* Inputs & Buttons Style Duolingo */
         input {
-            width: 88%; padding: 16px; border-radius: 14px;
-            border: 1px solid var(--border); background: #000;
-            color: #fff; margin-bottom: 12px; font-family: inherit;
+            width: 85%;
+            padding: 15px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border-grey);
+            border-radius: 15px;
+            background: var(--light-grey);
+            font-size: 1rem;
+            outline: none;
         }
 
         button {
-            font-family: inherit; text-transform: uppercase;
-            font-weight: bold; cursor: pointer; border-radius: 14px;
-            border: none; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: filter 0.2s, transform 0.1s;
+            margin-top: 10px;
         }
 
-        .btn-main {
-            background: var(--red); color: white; padding: 20px;
-            width: 100%; font-size: 1.1rem; letter-spacing: 2px;
-            box-shadow: 0 8px 0 #8b0000; margin-top: 10px;
+        button:active { transform: translateY(3px); }
+
+        .btn-primary {
+            background-color: var(--police-blue);
+            color: white;
+            border-bottom: 4px solid #1899D6;
         }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 4px 0 #8b0000; }
 
-        .btn-sec { background: transparent; color: #666; border: 1px dashed #444; width: 100%; padding: 12px; margin-bottom: 20px; }
-
-        /* Grille d'élimination */
-        #elimination-list {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px;
+        .btn-secondary {
+            background-color: var(--white);
+            color: #afafaf;
+            border: 2px solid var(--border-grey);
+            border-bottom: 4px solid var(--border-grey);
         }
-        .player-card {
-            background: #000; padding: 20px; border-radius: 16px;
-            border: 1px solid var(--border); font-weight: bold;
-            transition: 0.3s; position: relative;
+
+        /* Dossier Confidentiel */
+        .folder {
+            background: #FFF9E5;
+            border: 2px solid #F0D58E;
+            border-radius: 10px;
+            padding: 40px 20px;
+            position: relative;
+            margin: 20px 0;
+            box-shadow: 0 4px 0 #F0D58E;
+            animation: openFolder 0.5s ease;
         }
-        .player-card.dead { opacity: 0.15; filter: grayscale(1); pointer-events: none; }
 
-        /* Timer Géant */
-        #big-timer { font-size: 5.5rem; color: var(--gold); font-weight: 900; margin: 15px 0; text-shadow: 0 0 20px rgba(255, 207, 27, 0.2); }
-
-        .role-box {
-            margin: 30px 0; padding: 50px 20px; border-radius: 20px;
-            background: #000; border: 2px solid #222; font-size: 1.8rem;
+        @keyframes openFolder {
+            from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
         }
-        .mafia { color: var(--red); border-color: var(--red); }
-        .police { color: var(--blue); border-color: var(--blue); }
 
+        /* Timer & Jauge */
+        .timer-container {
+            width: 100%;
+            height: 15px;
+            background: var(--border-grey);
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--success-green);
+            transition: width 1s linear, background 0.3s;
+        }
+
+        #big-timer { font-size: 3.5rem; font-weight: 900; margin: 10px 0; }
+
+        /* Joueurs Liste */
+        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .player-tile {
+            background: var(--white);
+            border: 2px solid var(--border-grey);
+            border-bottom: 4px solid var(--border-grey);
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+        .player-tile.dead { background: #eee; color: #bbb; text-decoration: line-through; border-bottom: 2px solid #ddd; }
+
+        /* Animations Nuit/Jour */
+        .sky-icon { font-size: 4rem; margin: 20px; transition: all 1s ease; }
         .hidden { display: none !important; }
-        .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; }
+
+        /* Mode "Baigné" dans la couleur */
+        .bg-mafia { background-color: var(--mafia-red) !important; color: white !important; }
+        .bg-police { background-color: var(--police-blue) !important; color: white !important; }
     </style>
 </head>
-<body id="main-body">
+<body id="body-bg">
 
-<audio id="bg-music" loop>
-    <source src="ambiance.mp3" type="audio/mpeg">
-</audio>
+<audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
 
-<div class="container">
-    <div class="scoreboard hidden" id="scoreboard">
-        <div class="score-item" style="color: var(--blue)">POLICE <span id="score-police">0</span></div>
-        <div class="score-item">ROUND <span id="current-round">1</span></div>
-        <div class="score-item" style="color: var(--red)">MAFIA <span id="score-mafia">0</span></div>
-    </div>
-
-    <h1 id="title">MAFIA</h1>
+<div class="container" id="main-container">
+    <h1 id="ui-title">mafia</h1>
 
     <div id="setup-screen">
         <div id="player-inputs">
-            <input type="text" placeholder="JOUEUR 1" class="player-name">
-            <input type="text" placeholder="JOUEUR 2" class="player-name">
-            <input type="text" placeholder="JOUEUR 3" class="player-name">
+            <input type="text" placeholder="nom du joueur" class="player-name">
+            <input type="text" placeholder="nom du joueur" class="player-name">
+            <input type="text" placeholder="nom du joueur" class="player-name">
         </div>
-        <button onclick="addInput()" class="btn-sec">+ NOUVEL AGENT</button>
-        <button class="btn-main" onclick="startGame(true)">INITIALISER</button>
+        <button onclick="addInput()" class="btn-secondary">+ ajouter un agent</button>
+        <button class="btn-primary" onclick="startGame(true)">c'est parti !</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p style="color: #444; letter-spacing: 2px;">AUTHENTIFICATION</p>
-        <h2 id="target-name" style="font-size: 2.2rem; margin: 20px 0;">---</h2>
-        <button id="show-btn" class="btn-main" onclick="showRole()">VOIR LE DOSSIER</button>
+        <p>passe le téléphone à</p>
+        <h2 id="target-name">---</h2>
+        <button id="show-btn" class="btn-primary" onclick="showRole()">ouvrir le dossier</button>
         <div id="role-result" class="hidden">
-            <div id="role-card" class="role-box"><span id="role-text">---</span></div>
-            <button class="btn-main" onclick="nextStep()" style="background: #222; box-shadow: 0 8px 0 #111;">VALIDER</button>
+            <div id="role-folder" class="folder">
+                <span id="role-text" style="font-size: 1.5rem; font-weight: 900;">---</span>
+            </div>
+            <button class="btn-primary" onclick="nextStep()" style="background:white; color:var(--text-dark)">compris</button>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
+        <div id="sky-anim" class="sky-icon">☀️</div>
+        <div class="timer-container"><div id="timer-bar"></div></div>
         <div id="big-timer">05:00</div>
-        <button id="add-time-btn" onclick="addMinute()" style="background: rgba(255,207,27,0.1); color: var(--gold); padding: 10px 20px; font-size: 0.8rem; border-radius: 50px; border: 1px solid var(--gold); margin-bottom: 20px;">+ 1 MINUTE</button>
-        <div id="elimination-list"></div>
-        <button onclick="location.reload()" style="background:none; color:#222; margin-top:40px; border:none; text-decoration:underline; font-size:0.7rem;">RESET DATABASE</button>
+        <button class="btn-secondary" onclick="addMinute()">+ 1 minute</button>
+        <div class="player-grid" id="elimination-list"></div>
     </div>
 </div>
-
-<div id="night-overlay" class="night-overlay hidden"></div>
 
 <script>
     let players = [];
     let currentIndex = 0;
-    let scores = { police: 0, mafia: 0, round: 1 };
     let timeLeft = 300;
+    let totalTime = 300;
     let timerInterval = null;
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const music = document.getElementById('bg-music');
@@ -147,52 +191,43 @@
     function speak(text) {
         return new Promise(resolve => {
             const s = new SpeechSynthesisUtterance(text);
-            s.lang = 'fr-FR'; s.pitch = 0.6; s.rate = 0.75;
+            s.lang = 'fr-FR'; s.pitch = 1; s.rate = 0.8;
+            s.onend = resolve;
             window.speechSynthesis.speak(s);
             setTimeout(resolve, text.length * 80 + 1500);
         });
     }
 
-    function playTone(f, d, gVal = 0.1) {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.frequency.value = f; g.gain.setValueAtTime(gVal, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-        o.start(); o.stop(audioCtx.currentTime + d);
-    }
-
     function addInput() {
         const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'NOM'; input.className = 'player-name';
+        input.type = 'text'; input.placeholder = 'nom du joueur'; input.className = 'player-name';
         document.getElementById('player-inputs').appendChild(input);
-        playTone(150, 0.2);
     }
 
     async function startGame(first = false) {
         if (first) {
-            const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
-            if (names.length < 3) return alert("3 JOUEURS MINIMUM");
+            const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
+            if (names.length < 3) return alert("Il faut au moins 3 joueurs !");
             window.playerPool = names;
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            music.play().catch(() => console.log("Musique en attente d'interaction"));
+            music.play().catch(() => {});
         }
 
-        let names = window.playerPool;
-        let mCount = Math.max(1, Math.floor(names.length / 3));
+        let mCount = Math.max(1, Math.floor(window.playerPool.length / 3));
         let roles = [];
-        for(let i=0; i<mCount; i++) roles.push({n:'MAFIEUX 🔫', t:'mafia'});
-        while(roles.length < names.length) roles.push({n:'POLICIER 👮‍♂️', t:'police'});
+        for(let i=0; i<mCount; i++) roles.push({n:'Mafieux 🔫', t:'mafia'});
+        while(roles.length < window.playerPool.length) roles.push({n:'Policier 👮‍♂️', t:'police'});
         roles.sort(() => Math.random() - 0.5);
 
-        players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
+        players = window.playerPool.map((name, i) => ({ name, role: roles[i], alive: true }));
         currentIndex = 0;
         timeLeft = 300;
+        totalTime = 300;
 
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.add('hidden');
-        document.getElementById('scoreboard').classList.remove('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
+        document.body.className = "";
         updateReveal();
     }
 
@@ -200,16 +235,17 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-result').classList.add('hidden');
         document.getElementById('show-btn').classList.remove('hidden');
+        document.body.className = "";
     }
 
     function showRole() {
         const r = players[currentIndex].role;
         document.getElementById('role-text').innerText = r.n;
-        document.getElementById('role-card').className = "role-box " + r.t;
         document.getElementById('role-result').classList.remove('hidden');
         document.getElementById('show-btn').classList.add('hidden');
-        if (navigator.vibrate) r.t === 'mafia' ? navigator.vibrate([150, 100, 150]) : navigator.vibrate(50);
-        playTone(300, 0.4);
+        
+        // Effet d'immersion couleur
+        document.body.className = (r.t === 'mafia') ? "bg-mafia" : "bg-police";
     }
 
     function nextStep() {
@@ -221,65 +257,20 @@
     async function startMasterMode() {
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        document.getElementById('night-overlay').classList.remove('hidden');
-        
-        music.volume = 0.2; // Baisse la musique pour la voix
-        await speak("Manche " + scores.round + ". Posez le téléphone. Fermez les yeux.");
-        
+        document.getElementById('sky-anim').innerText = "🌙";
+        document.body.style.backgroundColor = "#111";
+
+        await speak("La nuit commence. Fermez les yeux.");
         await new Promise(r => setTimeout(r, 2000));
-        await speak("Mafieux... réveillez-vous et reconnaissez-vous.");
-        await new Promise(r => setTimeout(r, 9000));
-        await speak("Mafieux... rendormez-vous.");
-
-        document.getElementById('night-overlay').classList.add('hidden');
-        music.volume = 0.5;
-        await speak("Le soleil se lève ! Débat de cinq minutes.");
-        renderEliminationList();
+        await speak("Mafieux, réveillez-vous et reconnaissez-vous.");
+        await new Promise(r => setTimeout(r, 8000));
+        await speak("Mafieux, rendormez-vous.");
+        
+        document.getElementById('sky-anim').innerText = "☀️";
+        document.body.style.backgroundColor = "var(--light-grey)";
+        await speak("Le soleil se lève ! Trouvez le traître.");
+        renderPlayers();
         startTimer();
-    }
-
-    function renderEliminationList() {
-        const list = document.getElementById('elimination-list');
-        list.innerHTML = "";
-        players.forEach((p, index) => {
-            const card = document.createElement('div');
-            card.className = `player-card ${p.alive ? '' : 'dead'}`;
-            card.innerText = p.name;
-            card.onclick = () => eliminate(index);
-            list.appendChild(card);
-        });
-    }
-
-    async function eliminate(index) {
-        if (!players[index].alive) return;
-        const p = players[index];
-        p.alive = false;
-        renderEliminationList();
-
-        playTone(100, 1);
-        await speak(p.name + " était... " + p.role.n);
-
-        const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
-        const alivePolice = players.filter(pl => pl.alive && pl.role.t === 'police').length;
-
-        if (aliveMafia === 0) {
-            scores.police++;
-            await speak("La police gagne cette manche !");
-            finishRound();
-        } else if (aliveMafia >= alivePolice) {
-            scores.mafia++;
-            await speak("La mafia prend le contrôle !");
-            finishRound();
-        }
-    }
-
-    function finishRound() {
-        scores.round++;
-        document.getElementById('score-police').innerText = scores.police;
-        document.getElementById('score-mafia').innerText = scores.mafia;
-        document.getElementById('current-round').innerText = scores.round;
-        clearInterval(timerInterval);
-        setTimeout(() => startGame(false), 2000);
     }
 
     function startTimer() {
@@ -287,7 +278,18 @@
         timerInterval = setInterval(() => {
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            if (timeLeft === 0) {
+            
+            // Jauge et couleur du fond
+            let percent = (timeLeft / totalTime) * 100;
+            const bar = document.getElementById('timer-bar');
+            bar.style.width = percent + "%";
+            
+            if(percent < 30) {
+                bar.style.background = "var(--mafia-red)";
+                document.body.style.backgroundColor = `rgba(255, 75, 75, ${0.3 - (percent/100)})`;
+            }
+
+            if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 speak("Temps écoulé ! Votez !");
             }
@@ -297,9 +299,35 @@
 
     function addMinute() {
         timeLeft += 60;
-        playTone(400, 0.3);
+        totalTime = Math.max(totalTime, timeLeft);
         startTimer();
     }
+
+    function renderPlayers() {
+        const list = document.getElementById('elimination-list');
+        list.innerHTML = "";
+        players.forEach((p, i) => {
+            const tile = document.createElement('div');
+            tile.className = `player-tile ${p.alive ? '' : 'dead'}`;
+            tile.innerText = p.name;
+            tile.onclick = () => eliminate(i);
+            list.appendChild(tile);
+        });
+    }
+
+    async function eliminate(i) {
+        if(!players[i].alive) return;
+        players[i].alive = false;
+        renderPlayers();
+        await speak(players[i].name + " était " + players[i].role.n);
+        
+        const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
+        if(aliveMafia === 0) {
+            await speak("La police gagne !");
+            location.reload(); 
+        }
+    }
 </script>
+
 </body>
 </html>
