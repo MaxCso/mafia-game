@@ -1,15 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="icon.jpg">
+    <link rel="apple-touch-icon" href="icon.jpg">    
+    <title>EL MAFIOSO</title>
+    <style>
+        :root {
+            --red: #ff3131; --border: #333; --paper: #e8dcc4;
+            --text-dark: #1a1a1a; --text-light: #d0d0d0;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background: #0a0a0a url('bg-main.png') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-light);
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); z-index: 1;
+        }
+
+        .container {
+            width: 85%; max-width: 380px; padding: 25px;
+            background: rgba(15, 15, 15, 0.95); border: 1px solid var(--border);
+            box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
+            border-radius: 8px; text-align: center;
+        }
+
+        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 25px; }
+
+        input {
+            width: 90%; padding: 12px; background: #000; border: 1px solid var(--border);
+            color: var(--red); margin-bottom: 10px; border-radius: 4px; text-align: center; font-family: inherit;
+        }
+
+        button {
+            width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border); color: #aaa;
+            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit;
+        }
+
+        .btn-main { background: #6b0000; color: white; border: 1px solid var(--red); font-weight: bold; }
+        .btn-pause { background: rgba(255, 207, 27, 0.1); color: #ffcf1b; border-color: #ffcf1b; margin-top: 10px; width: 48%; display: inline-block; }
+        .btn-add { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border-color: #00d2ff; margin-top: 10px; width: 48%; display: inline-block; }
+
+        #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; text-transform: uppercase; }
+
+        #role-display {
+            background: var(--paper); color: var(--text-dark);
+            margin: 20px 0; padding: 0; border-radius: 2px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.6);
+            transform: rotate(-1.5deg); display: none;
+        }
+        .role-image-container {
+            width: 160px; height: 160px; margin: 25px auto 10px auto;
+            border: 8px solid #fff; background-size: cover; background-position: center;
+        }
+        .stamp {
+            border: 5px solid #8a2a2a; color: #8a2a2a; padding: 8px 18px;
+            font-weight: bold; font-size: 1.5rem; text-transform: uppercase;
+            display: inline-block; transform: rotate(-12deg); margin-bottom: 25px;
+        }
+
+        #big-timer { font-size: 4.5rem; color: #fff; margin: 10px 0; font-weight: bold; }
+        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .player-card { padding: 15px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.9rem; font-weight: bold; }
+        .player-card.dead { opacity: 0.1; text-decoration: line-through; }
+
+        .hidden { display: none !important; }
+        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
+        #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; opacity:0; pointer-events:none; }
+    </style>
+</head>
+<body>
+
+<div id="flash"></div>
+
+<div id="start-overlay">
+    <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">LANCER LA PARTIE</button>
+</div>
+
+<audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
+<audio id="night-music" loop><source src="ambiance-nuit.mp3" type="audio/mpeg"></audio>
+
+<div class="container hidden" id="game-ui">
+    <h1>EL MAFIOSO</h1>
+
+    <div id="setup-screen">
+        <div id="player-inputs">
+            <input type="text" placeholder="SUSPECT 1" class="player-name">
+            <input type="text" placeholder="SUSPECT 2" class="player-name">
+            <input type="text" placeholder="SUSPECT 3" class="player-name">
+        </div>
+        <button onclick="addInput()">+ AJOUTER DOSSIER</button>
+        <button class="btn-main" onclick="startGame()">DÉBUTER L'ENQUÊTE</button>
+    </div>
+
+    <div id="reveal-screen" class="hidden">
+        <p style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 2px;">IDENTIFICATION REQUISE</p>
+        <span id="target-name">---</span>
+        <button id="show-btn" class="btn-main" onclick="showRole()">CONSULTER LE DOSSIER</button>
+        
+        <div id="role-display">
+            <div style="font-size: 0.6rem; text-align: left; padding: 5px 10px; color:#555; font-weight: bold;">CLASSIFIÉ // TOP SECRET</div>
+            <div id="role-image" class="role-image-container"></div>
+            <div id="role-text" class="stamp">---</div>
+            <button onclick="nextStep()" style="color:#000; border-color:#000; background:none; margin-bottom: 20px; width: 85%; font-weight: bold;">FERMER LE DOSSIER</button>
+        </div>
+    </div>
+
+    <div id="master-screen" class="hidden">
+        <div id="big-timer">05:00</div>
+        <div style="display: flex; justify-content: space-between;">
+            <button id="pause-btn" class="btn-pause" onclick="togglePause()">PAUSE</button>
+            <button class="btn-add" onclick="addMinute()">+1 MIN</button>
+        </div>
+        <div class="player-grid" id="elimination-list"></div>
+    </div>
+</div>
+
+<div id="night-overlay" class="night-overlay hidden"></div>
+
 <script>
     let players = [];
     let currentIndex = 0;
     let timeLeft = 300;
     let timerInterval = null;
     let isPaused = false;
-    
+    let isNightMode = false;
+
     const music = document.getElementById('bg-music');
-    // NOUVEAU : Son d'ambiance spécifique pour la nuit
-    const nightMusic = new Audio('ambiance-nuit.mp3');
-    nightMusic.loop = true;
-    nightMusic.volume = 0.15;
+    const nightMusic = document.getElementById('night-music');
 
     const audioObj = {
         debut: new Audio('voix-debut.mp3'),
@@ -24,33 +154,30 @@
 
     function initAudio() {
         music.volume = 0.2;
-        music.play().catch(() => {});
+        music.play();
+        
+        // On pré-lance le son de nuit en muet
+        nightMusic.volume = 0;
+        nightMusic.play().catch(() => {});
+
         document.getElementById('start-overlay').classList.add('hidden');
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    // Fonction de lecture voix (elle coupe TOUTE musique en cours)
     async function playVoice(key, durationFallback = 4000) {
         return new Promise((resolve) => {
-            music.pause();
-            nightMusic.pause(); // On coupe aussi le son de nuit si actif
-            
+            const currentAmbience = isNightMode ? nightMusic : music;
+            currentAmbience.volume = 0;
+
             const snd = audioObj[key];
             let hasPlayed = false;
-            
+
             if (snd) {
                 snd.load();
-                snd.currentTime = 0;
-                snd.play().then(() => { hasPlayed = true; }).catch(e => console.log("Audio block"));
-                
+                snd.play().then(() => { hasPlayed = true; }).catch(() => {});
                 snd.onended = () => {
                     setTimeout(() => {
-                        // On relance la bonne musique selon l'état du jeu
-                        if (!document.getElementById('night-overlay').classList.contains('hidden')) {
-                            nightMusic.play();
-                        } else {
-                            music.play();
-                        }
+                        currentAmbience.volume = 0.2;
                         resolve();
                     }, 500);
                 };
@@ -58,18 +185,12 @@
             
             setTimeout(() => {
                 if (!hasPlayed || (snd && snd.paused)) {
-                    if (!document.getElementById('night-overlay').classList.contains('hidden')) {
-                        nightMusic.play();
-                    } else {
-                        music.play();
-                    }
+                    currentAmbience.volume = 0.2;
                     resolve();
                 }
             }, durationFallback);
         });
     }
-
-    // --- LOGIQUE DE JEU --- (Gardée identique)
 
     function addInput() {
         const input = document.createElement('input');
@@ -97,12 +218,12 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-display').style.display = 'none';
         document.getElementById('show-btn').classList.remove('hidden');
-        document.body.classList.remove('tension-active');
     }
 
     function showRole() {
         const r = players[currentIndex].role;
         document.getElementById('role-text').innerText = r.n;
+        // Vérifie bien que role-police.png existe sur GitHub
         document.getElementById('role-image').style.backgroundImage = `url('role-${r.t}.png')`;
         document.getElementById('role-display').style.display = 'block';
         document.getElementById('show-btn').classList.add('hidden');
@@ -114,16 +235,16 @@
         else startMasterMode();
     }
 
-    // --- SEQUENCE DE NUIT MODIFIÉE ---
     async function startMasterMode() {
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
         
-        // On bascule vers l'ambiance de nuit
-        music.pause();
-        nightMusic.play().catch(() => {});
+        // BASCULE SONORE NUIT
+        isNightMode = true;
+        music.volume = 0;
+        nightMusic.volume = 0.2;
 
         await playVoice('debut', 6000);
         await playVoice('nuit', 5000);
@@ -139,8 +260,10 @@
             await new Promise(r => setTimeout(r, 7000));
         }
 
-        // On revient à l'ambiance de jour
-        nightMusic.pause();
+        // BASCULE SONORE JOUR
+        isNightMode = false;
+        nightMusic.volume = 0;
+        music.volume = 0.2;
         night.classList.add('hidden');
         
         await playVoice('jour', 5000);
@@ -161,10 +284,7 @@
             timeLeft--;
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            if (timeLeft <= 60) {
-                document.body.classList.add('tension-active');
-                if (timeLeft === 60) playVoice('soixante', 3000);
-            }
+            if (timeLeft === 60) playVoice('soixante', 3000);
             if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote', 5000); }
         }, 1000);
     }
@@ -183,25 +303,27 @@
 
     function addMinute() { timeLeft += 60; }
 
-    async function speakRobot(text) {
-        music.pause();
-        const s = new SpeechSynthesisUtterance(text);
-        s.lang = 'fr-FR'; s.rate = 0.85;
-        window.speechSynthesis.speak(s);
-        s.onend = () => music.play();
-    }
-
     async function eliminate(i) {
         if(!players[i].alive) return;
         const flash = document.getElementById('flash');
         flash.style.opacity = '1';
         setTimeout(() => { flash.style.opacity = '0'; flash.style.transition = 'opacity 0.5s'; }, 50);
+
         players[i].alive = false;
         renderPlayers();
-        await speakRobot(players[i].name + " était " + players[i].role.n);
+        
+        const currentAmbience = isNightMode ? nightMusic : music;
+        currentAmbience.volume = 0;
+        const s = new SpeechSynthesisUtterance(players[i].name + " était " + players[i].role.n);
+        s.lang = 'fr-FR'; 
+        s.onend = () => currentAmbience.volume = 0.2;
+        window.speechSynthesis.speak(s);
+        
         if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
             alert("AFFAIRE CLASSÉE : LA POLICE GAGNE !");
             location.reload();
         }
     }
 </script>
+</body>
+</html>
