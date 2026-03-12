@@ -3,64 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Voix Française</title>
+    <title>MAFIA - Immersion Silencieuse</title>
     <style>
-        :root { --red: #b91c1c; --blue: #1e40af; --gold: #facc15; --dark: #0d0d0d; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--dark); color: #e0e0e0; text-align: center; padding: 10px; margin: 0; }
-        .container { max-width: 450px; margin: auto; padding: 25px; }
-        h1 { font-size: 3rem; color: var(--red); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 30px; }
-        .input-group { display: flex; margin-bottom: 12px; }
-        input { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white; font-size: 1rem; }
-        button { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-main { background: var(--red); font-size: 1.2rem; margin-top: 20px; width: 100%; border-bottom: 4px solid #7f1d1d; }
-        .hidden { display: none; }
-        .role-reveal-box { padding: 40px 20px; border: 3px double #444; border-radius: 20px; background: #111; margin: 20px 0; }
+        :root { --red: #ff3131; --blue: #00d2ff; --purple: #bc13fe; --gold: #ffcf1b; --bg: #050505; }
+        body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #e0e0e0; text-align: center; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { max-width: 400px; width: 90%; padding: 30px; border-radius: 24px; background: #111; border: 1px solid #222; box-shadow: 0 0 40px rgba(0,0,0,0.8); }
+        h1 { font-size: 2.5rem; color: var(--red); text-transform: uppercase; letter-spacing: 12px; margin-bottom: 40px; text-shadow: 0 0 20px rgba(255, 49, 49, 0.4); }
+        .input-group { margin-bottom: 15px; }
+        input { width: 85%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #000; color: white; font-family: inherit; }
+        button { font-family: inherit; text-transform: uppercase; font-weight: bold; cursor: pointer; border-radius: 12px; border: none; transition: 0.3s; }
+        .btn-add { background: transparent; color: #666; border: 1px dashed #444; width: 100%; padding: 12px; margin-bottom: 20px; }
+        .btn-main { background: var(--red); color: white; padding: 20px; width: 100%; font-size: 1.1rem; }
+        .role-box { margin: 30px 0; padding: 60px 20px; border-radius: 20px; background: #000; border: 2px solid #222; font-size: 2rem; }
         .mafia { color: var(--red); border-color: var(--red); }
         .police { color: var(--blue); border-color: var(--blue); }
-        .undercover { color: #9b59b6; border-color: #9b59b6; }
-        .night-mode { animation: pulse-red 4s infinite; }
-        @keyframes pulse-red { 0%, 100% { background: #0d0d0d; } 50% { background: #1a0000; } }
-        #big-timer { font-size: 5.5rem; font-weight: 900; color: var(--gold); margin: 20px 0; font-family: 'Courier New', monospace; }
-        .defense-mode { border: 4px solid var(--gold) !important; }
+        .undercover { color: var(--purple); border-color: var(--purple); }
+        #big-timer { font-size: 5rem; color: var(--gold); font-weight: 900; margin: 20px 0; }
+        .hidden { display: none; }
+        #night-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        #night-names-display { color: #400; font-size: 1.2rem; margin-top: 20px; text-align: center; }
     </style>
 </head>
-<body id="main-body">
+<body>
 
 <div class="container">
     <h1>MAFIA</h1>
 
     <div id="setup-screen">
-        <p>Noms des joueurs :</p>
         <div id="player-list">
-            <div class="input-group"><input type="text" placeholder="Nom" class="player-name"></div>
-            <div class="input-group"><input type="text" placeholder="Nom" class="player-name"></div>
-            <div class="input-group"><input type="text" placeholder="Nom" class="player-name"></div>
+            <div class="input-group"><input type="text" placeholder="JOUEUR 1" class="player-name"></div>
+            <div class="input-group"><input type="text" placeholder="JOUEUR 2" class="player-name"></div>
+            <div class="input-group"><input type="text" placeholder="JOUEUR 3" class="player-name"></div>
         </div>
-        <button onclick="addPlayer()" style="background: #333; width: 100%;">+ JOUEUR</button>
-        <button class="btn-main" onclick="initGame()">COMMENCER</button>
+        <button onclick="addPlayer()" class="btn-add">+ AJOUTER JOUEUR</button>
+        <button class="btn-main" onclick="initGame()">LANCER LA PARTIE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p>Au tour de :</p>
-        <h2 id="target-player-name" style="font-size: 2.5rem;">---</h2>
-        <button id="show-btn" onclick="showRole()">VOIR MON RÔLE</button>
+        <p style="color: #555;">IDENTIFICATION</p>
+        <h2 id="target-name" style="font-size: 2.2rem; margin: 20px 0;">---</h2>
+        <button id="show-btn" class="btn-main" onclick="showRole()">VOIR MON RÔLE</button>
         <div id="role-result" class="hidden">
-            <div id="role-card" class="role-reveal-box"><span id="role-name">---</span></div>
-            <button onclick="nextStep()" style="width: 100%;">SUIVANT</button>
+            <div id="role-card" class="role-box"><span id="role-text">---</span></div>
+            <button class="btn-main" onclick="nextStep()" style="background: #222;">JOUEUR SUIVANT</button>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
-        <h2 id="master-title">MAÎTRE DU JEU</h2>
-        <div id="master-visual" class="role-reveal-box">
-            <p id="master-instruction">Posez le téléphone au centre.</p>
+        <div class="role-box" style="border-style: dashed; font-size: 1.2rem;">
+            POSEZ LE TÉLÉPHONE AU CENTRE.
         </div>
-        <div id="night-data" class="hidden" style="color: var(--red); font-size: 1.8rem; font-weight: bold;"></div>
         <div id="big-timer" class="hidden">05:00</div>
-        <div id="defense-section" class="hidden">
-            <button class="btn-main" id="defense-btn" onclick="startDefense()">🎤 DERNIÈRE PAROLE (15s)</button>
-        </div>
+        <button class="btn-main hidden" id="defense-btn" onclick="startDefense()" style="background: var(--gold); color: #000;">🎤 DERNIÈRE PAROLE (15s)</button>
     </div>
+</div>
+
+<div id="night-overlay" class="hidden">
+    <div id="night-instruction" style="color: #444; font-style: italic; margin-bottom: 20px;">Nuit en cours...</div>
+    <div id="night-names-display" class="hidden"></div>
 </div>
 
 <script>
@@ -68,51 +68,43 @@
     let currentIndex = 0;
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // --- SONS ---
-    function playTone(freq, duration, type='sine') {
-        let osc = audioCtx.createOscillator();
-        let gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-        osc.start(); osc.stop(audioCtx.currentTime + duration);
-    }
-
     function speak(text) {
         return new Promise(resolve => {
             const speech = new SpeechSynthesisUtterance(text);
-            speech.lang = 'fr-FR'; // Force la langue française
-            speech.pitch = 0.7; 
-            speech.rate = 0.9;
-
-            // Correction de l'accent : On cherche explicitement une voix française
+            speech.lang = 'fr-FR'; speech.pitch = 0.6; speech.rate = 0.8;
             const voices = window.speechSynthesis.getVoices();
             const frVoice = voices.find(v => v.lang.startsWith('fr'));
             if (frVoice) speech.voice = frVoice;
-
             speech.onend = resolve;
             window.speechSynthesis.speak(speech);
         });
     }
 
-    // --- LOGIQUE JEU ---
+    function playTone(f, d, gVal = 0.1) {
+        let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.frequency.value = f; g.gain.setValueAtTime(gVal, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
     function addPlayer() {
         const div = document.createElement('div');
         div.className = 'input-group';
-        div.innerHTML = `<input type="text" placeholder="Nom" class="player-name">`;
+        div.innerHTML = `<input type="text" placeholder="JOUEUR" class="player-name">`;
         document.getElementById('player-list').appendChild(div);
+        playTone(150, 0.2);
     }
 
     function initGame() {
-        const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-        if (names.length < 3) return alert("3 joueurs minimum !");
-        let mCount = Math.max(1, Math.floor(names.length / 3));
-        let uCount = names.length >= 6 ? 1 : 0;
+        const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim().toUpperCase()).filter(n => n !== "");
+        if (names.length < 3) return alert("3 JOUEURS MINIMUM");
+        let m = Math.max(1, Math.floor(names.length / 3));
+        let u = names.length >= 6 ? 1 : 0;
         let roles = [];
-        for(let i=0; i<mCount; i++) roles.push({n:'Mafieux 🔫', t:'mafia'});
-        for(let i=0; i<uCount; i++) roles.push({n:'Undercover 🕵️‍♂️', t:'undercover'});
-        while(roles.length < names.length) roles.push({n:'Policier 👮‍♂️', t:'police'});
+        for(let i=0; i<m; i++) roles.push({n:'MAFIEUX', t:'mafia'});
+        for(let i=0; i<u; i++) roles.push({n:'INFILTRÉ', t:'undercover'});
+        while(roles.length < names.length) roles.push({n:'POLICIER', t:'police'});
         roles.sort(() => Math.random() - 0.5);
         players = names.map((name, i) => ({ name, role: roles[i] }));
         document.getElementById('setup-screen').classList.add('hidden');
@@ -121,17 +113,24 @@
     }
 
     function updateReveal() {
-        document.getElementById('target-player-name').innerText = players[currentIndex].name;
+        document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-result').classList.add('hidden');
         document.getElementById('show-btn').classList.remove('hidden');
     }
 
     function showRole() {
         const r = players[currentIndex].role;
-        document.getElementById('role-name').innerText = r.n;
-        document.getElementById('role-card').className = "role-reveal-box " + r.t;
+        document.getElementById('role-text').innerText = r.n;
+        document.getElementById('role-card').className = "role-box " + r.t;
         document.getElementById('role-result').classList.remove('hidden');
         document.getElementById('show-btn').classList.add('hidden');
+        
+        if (navigator.vibrate) {
+            if (r.t === 'mafia') navigator.vibrate([150, 100, 150]);
+            else if (r.t === 'undercover') navigator.vibrate(600);
+            else navigator.vibrate(50);
+        }
+        playTone(300, 0.4);
     }
 
     function nextStep() {
@@ -143,35 +142,43 @@
     async function startMasterMode() {
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        const mafieux = players.filter(p => p.role.t === 'mafia').map(p => p.name).join(', ');
-        const hasU = players.some(p => p.role.t === 'undercover');
+        document.getElementById('night-overlay').classList.remove('hidden');
 
-        await speak("Posez le téléphone. La nuit tombe. Fermez les yeux.");
-        document.getElementById('main-body').classList.add('night-mode');
+        const mafieuxNames = players.filter(p => p.role.t === 'mafia').map(p => p.name).join(' & ');
+
+        await speak("Le jeu commence. Posez le téléphone au centre.");
+        await speak("La nuit tombe sur la ville... Fermez tous les yeux.");
         
-        let heart = setInterval(() => playTone(50, 0.6), 1500);
+        // Bruit de fond (battement) pour couvrir les bruits de mouvements
+        let heart = setInterval(() => playTone(55, 0.8, 0.1), 1800);
 
-        // MAFIEUX
-        await speak("Mafieux, réveillez-vous. Identifiez vos complices sur l'écran, puis regardez-vous discrètement.");
-        document.getElementById('night-data').innerText = "Mafieux : " + mafieux;
-        document.getElementById('night-data').classList.remove('hidden');
-        await new Promise(r => setTimeout(r, 9000));
-        document.getElementById('night-data').classList.add('hidden');
-        await speak("Mafieux, rendormez-vous.");
+        // MAFIA (Pas de noms prononcés !)
+        await new Promise(r => setTimeout(r, 2000));
+        await speak("Mafieux... réveillez-vous. Regardez-vous discrètement pour vous reconnaître.");
+        
+        // Affichage très sombre sur l'écran au cas où
+        const display = document.getElementById('night-names-display');
+        display.innerText = "Complices : " + mafieuxNames;
+        display.classList.remove('hidden');
+        
+        await new Promise(r => setTimeout(r, 10000));
+        display.classList.add('hidden');
+        await speak("Mafieux... fermez les yeux.");
 
-        // UNDERCOVER
-        if(hasU) {
-            await new Promise(r => setTimeout(r, 2000));
-            await speak("Infiltré, réveille-toi. Regarde l'écran pour identifier les mafieux.");
-            document.getElementById('night-data').classList.remove('hidden');
+        // UNDERCOVER (Pas de noms prononcés !)
+        if(players.some(p => p.role.t === 'undercover')) {
+            await new Promise(r => setTimeout(r, 3000));
+            await speak("Infiltré... réveille-toi. Regarde l'écran pour identifier la menace.");
+            display.innerText = "Mafieux : " + mafieuxNames;
+            display.classList.remove('hidden');
             await new Promise(r => setTimeout(r, 7000));
-            document.getElementById('night-data').classList.add('hidden');
-            await speak("Infiltré, rendors-toi.");
+            display.classList.add('hidden');
+            await speak("Infiltré... rendors-toi.");
         }
 
         clearInterval(heart);
-        document.getElementById('main-body').classList.remove('night-mode');
-        await speak("Le soleil se lève. Tout le monde se réveille. Vous avez cinq minutes.");
+        document.getElementById('night-overlay').classList.add('hidden');
+        await speak("Le soleil se lève ! Tout le monde se réveille. Le débat de cinq minutes commence.");
         startDebateTimer();
     }
 
@@ -179,14 +186,14 @@
         let time = 300; 
         const display = document.getElementById('big-timer');
         display.classList.remove('hidden');
-        const timer = setInterval(() => {
+        const timer = setInterval(async () => {
             let m = Math.floor(time / 60), s = time % 60;
             display.innerText = `${m}:${s < 10 ? '0'+s : s}`;
-            if(time === 60) speak("Une minute restante.");
+            if(time === 60) await speak("Il reste une minute.");
             if(time === 0) {
                 clearInterval(timer);
-                speak("Temps écoulé ! Votez ou utilisez la dernière parole.");
-                document.getElementById('defense-section').classList.remove('hidden');
+                await speak("Temps écoulé ! Votez ou demandez une défense finale.");
+                document.getElementById('defense-btn').classList.remove('hidden');
             }
             time--;
         }, 1000);
@@ -194,26 +201,21 @@
 
     async function startDefense() {
         document.getElementById('defense-btn').disabled = true;
-        playTone(300, 1, 'square'); // Gong de début
-        await speak("Tu as quinze secondes pour convaincre le groupe.");
+        playTone(600, 1, 0.3);
+        await speak("Tu as quinze secondes pour te défendre.");
         let dTime = 15;
         const dInterval = setInterval(() => {
             document.getElementById('big-timer').innerText = dTime;
             if(dTime <= 0) {
                 clearInterval(dInterval);
-                playTone(150, 1.5, 'square'); // Gong de fin
-                speak("C'est fini. On vote dans trois. deux. un. Votez !");
-                document.getElementById('defense-btn').disabled = false;
+                playTone(200, 1.5, 0.3);
+                speak("Temps écoulé ! Place au vote. Dans trois... deux... un... Votez !");
             }
             dTime--;
         }, 1000);
     }
 
-    // Force le chargement des voix au démarrage
-    window.speechSynthesis.getVoices();
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
 </html>
