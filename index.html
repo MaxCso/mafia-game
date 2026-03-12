@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Master Edition 5min</title>
+    <title>MAFIA - Master Voice</title>
     <style>
         :root { --red: #b91c1c; --blue: #1e40af; --gold: #facc15; --dark: #0d0d0d; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--dark); color: #e0e0e0; text-align: center; padding: 10px; margin: 0; }
         .container { max-width: 450px; margin: auto; padding: 25px; }
         h1 { font-size: 3rem; color: var(--red); text-transform: uppercase; letter-spacing: 8px; margin-bottom: 30px; text-shadow: 0 0 20px rgba(185, 28, 28, 0.5); }
-        
         .input-group { display: flex; margin-bottom: 12px; }
         input { flex: 1; padding: 15px; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white; font-size: 1rem; }
         button { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .btn-main { background: var(--red); font-size: 1.2rem; margin-top: 20px; width: 100%; border-bottom: 4px solid #7f1d1d; }
-        
         .hidden { display: none; }
         .role-reveal-box { padding: 40px 20px; border: 3px double #444; border-radius: 20px; background: #111; margin: 20px 0; }
         .mafia { color: var(--red); border-color: var(--red); }
         .police { color: var(--blue); border-color: var(--blue); }
         .undercover { color: #9b59b6; border-color: #9b59b6; }
-
         @keyframes pulse-red { 0% { background: #0d0d0d; } 50% { background: #2a0000; } 100% { background: #0d0d0d; } }
         .night-mode { animation: pulse-red 4s infinite; }
-
         #big-timer { font-size: 5.5rem; font-weight: 900; color: var(--gold); margin: 20px 0; font-family: 'Courier New', monospace; }
-        .instruction { font-size: 1.2rem; color: #888; font-style: italic; }
         .defense-mode { border: 4px solid var(--gold) !important; animation: flash 1s infinite; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
     </style>
@@ -33,7 +28,7 @@
 <body id="main-body">
 
 <div class="container">
-    <h1 id="game-title">MAFIA</h1>
+    <h1>MAFIA</h1>
 
     <div id="setup-screen">
         <p>Entrez les noms des joueurs :</p>
@@ -43,36 +38,29 @@
             <div class="input-group"><input type="text" placeholder="Nom" class="player-name"></div>
         </div>
         <button onclick="addPlayer()" style="background: #333; width: 100%;">+ AJOUTER UN JOUEUR</button>
-        <button class="btn-main" onclick="initGame()">DÉMARRER LA PARTIE</button>
+        <button class="btn-main" onclick="initGame()">COMMENCER</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p>Passez le téléphone à :</p>
+        <p>Au tour de :</p>
         <h2 id="target-player-name" style="font-size: 2.5rem;">---</h2>
         <button id="show-btn" onclick="showRole()">VOIR MON RÔLE</button>
-        
         <div id="role-result" class="hidden">
-            <div id="role-card" class="role-reveal-box">
-                <span id="role-name">---</span>
-            </div>
+            <div id="role-card" class="role-reveal-box"><span id="role-name">---</span></div>
             <button onclick="nextStep()" style="width: 100%;">JOUEUR SUIVANT</button>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
-        <h2 id="master-title">MAÎTRE DU JEU</h2>
+        <h2 id="master-title">L'OMBRE DU CRIME</h2>
         <div id="master-visual" class="role-reveal-box">
             <p id="master-instruction">Posez le téléphone au centre.</p>
         </div>
         <div id="night-data" class="hidden" style="color: var(--red); font-size: 1.8rem; font-weight: bold;"></div>
         <div id="big-timer" class="hidden">05:00</div>
-        
         <div id="defense-section" class="hidden">
-            <button class="btn-main" id="defense-btn" onclick="startDefense()">🔥 DERNIÈRE PAROLE (15s)</button>
-            <p class="instruction">À utiliser si quelqu'un est accusé.</p>
+            <button class="btn-main" id="defense-btn" onclick="startDefense()">🎤 DERNIÈRE PAROLE (15s)</button>
         </div>
-        
-        <button onclick="location.reload()" style="background: #222; margin-top: 50px; font-size: 0.8rem;">REJOUER</button>
     </div>
 </div>
 
@@ -81,23 +69,33 @@
     let currentIndex = 0;
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+    function speak(text) {
+        return new Promise(resolve => {
+            const speech = new SpeechSynthesisUtterance(text);
+            speech.lang = 'fr-FR';
+            
+            // RÉGLAGES DE LA VOIX
+            speech.pitch = 0.6; // Plus grave (0 à 2, 1 par défaut)
+            speech.rate = 0.85;  // Un peu plus lent pour le suspense
+            
+            // Tentative de trouver une voix masculine
+            const voices = window.speechSynthesis.getVoices();
+            const maleVoice = voices.find(v => v.name.includes('Thomas') || v.name.includes('Male') || v.name.includes('Daniel'));
+            if (maleVoice) speech.voice = maleVoice;
+
+            speech.onend = resolve;
+            window.speechSynthesis.speak(speech);
+        });
+    }
+
     function playHeartbeat() {
         let osc = audioCtx.createOscillator();
         let gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.type = 'sine'; osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(50, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-    }
-
-    function speak(text) {
-        return new Promise(resolve => {
-            const speech = new SpeechSynthesisUtterance(text);
-            speech.lang = 'fr-FR'; speech.rate = 0.9;
-            speech.onend = resolve;
-            window.speechSynthesis.speak(speech);
-        });
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.6);
     }
 
     function addPlayer() {
@@ -110,17 +108,14 @@
     function initGame() {
         const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
         if (names.length < 3) return alert("3 joueurs minimum !");
-        
         let mCount = Math.max(1, Math.floor(names.length / 3));
         let uCount = names.length >= 6 ? 1 : 0;
         let roles = [];
         for(let i=0; i<mCount; i++) roles.push({n:'Mafieux 🔫', t:'mafia'});
         for(let i=0; i<uCount; i++) roles.push({n:'Undercover 🕵️‍♂️', t:'undercover'});
         while(roles.length < names.length) roles.push({n:'Policier 👮‍♂️', t:'police'});
-        
         roles.sort(() => Math.random() - 0.5);
         players = names.map((name, i) => ({ name, role: roles[i] }));
-        
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
         updateReveal();
@@ -149,30 +144,28 @@
     async function startMasterMode() {
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        
         const mafieux = players.filter(p => p.role.t === 'mafia').map(p => p.name).join(', ');
         const hasU = players.some(p => p.role.t === 'undercover');
 
         await speak("Le jeu commence. Posez le téléphone au centre de la table.");
-        await speak("La nuit tombe. Tout le monde ferme les yeux.");
-        
+        await speak("La nuit tombe sur la ville. Tout le monde ferme les yeux.");
         document.getElementById('main-body').classList.add('night-mode');
-        document.getElementById('master-visual').innerHTML = "🌙 NUIT NOIRE";
+        document.getElementById('master-visual').innerHTML = "🌙 NUIT";
         
-        let heart = setInterval(playHeartbeat, 1200);
+        let heart = setInterval(playHeartbeat, 1500);
 
         // MAFIEUX
-        await speak("Mafieux, réveillez-vous et regardez l'écran.");
+        await speak("Mafieux, réveillez-vous. Regardez l'écran pour découvrir vos complices, puis regardez-vous discrètement pour vous reconnaître.");
         document.getElementById('night-data').innerText = "Mafieux : " + mafieux;
         document.getElementById('night-data').classList.remove('hidden');
-        await new Promise(r => setTimeout(r, 8000));
+        await new Promise(r => setTimeout(r, 9000));
         document.getElementById('night-data').classList.add('hidden');
-        await speak("Mafieux, rendormez-vous.");
+        await speak("Mafieux, fermez les yeux et rendormez-vous.");
         await new Promise(r => setTimeout(r, 2000));
 
         // UNDERCOVER
         if(hasU) {
-            await speak("Infiltré, réveille-toi et regarde l'écran.");
+            await speak("Infiltré, réveille-toi. Regarde l'écran pour identifier les mafieux.");
             document.getElementById('night-data').classList.remove('hidden');
             await new Promise(r => setTimeout(r, 7000));
             document.getElementById('night-data').classList.add('hidden');
@@ -183,27 +176,23 @@
         clearInterval(heart);
         document.getElementById('main-body').classList.remove('night-mode');
         document.getElementById('master-visual').innerHTML = "☀️ LE MATIN";
-        await speak("Le soleil se lève. Tout le monde se réveille ! Vous avez cinq minutes de débat.");
-        
+        await speak("Le soleil se lève. Tout le monde se réveille ! Vous avez cinq minutes pour démasquer les traîtres.");
         startDebateTimer();
     }
 
     function startDebateTimer() {
-        let time = 300; // 5 minutes
+        let time = 300; 
         const display = document.getElementById('big-timer');
         display.classList.remove('hidden');
-        
         const timer = setInterval(async () => {
             let m = Math.floor(time / 60), s = time % 60;
             display.innerText = `${m}:${s < 10 ? '0'+s : s}`;
-            
-            if(time === 60) speak("Il reste une minute.");
-            if(time === 30) speak("Trente secondes restantes. Trouvez un coupable.");
-            
+            if(time === 60) speak("Il reste soixante secondes.");
+            if(time === 30) speak("Trente secondes. Mettez fin aux doutes.");
             if(time <= 0) {
                 clearInterval(timer);
                 display.innerText = "FIN !";
-                await speak("Temps écoulé ! Si vous avez un suspect principal, utilisez le bouton Dernière Parole. Sinon, passez au vote.");
+                await speak("Temps écoulé ! Si un suspect est désigné, utilisez la dernière parole. Sinon, préparez-vous au vote.");
                 document.getElementById('defense-section').classList.remove('hidden');
             }
             time--;
@@ -213,8 +202,7 @@
     async function startDefense() {
         document.getElementById('defense-btn').disabled = true;
         document.getElementById('master-visual').classList.add('defense-mode');
-        await speak("Suspect, tu as quinze secondes pour nous convaincre de ton innocence. Bonne chance.");
-        
+        await speak("Tu as quinze secondes pour te défendre. Ton temps commence maintenant.");
         let dTime = 15;
         const dInterval = setInterval(() => {
             document.getElementById('big-timer').innerText = dTime;
@@ -222,12 +210,15 @@
                 clearInterval(dInterval);
                 document.getElementById('master-visual').classList.remove('defense-mode');
                 document.getElementById('big-timer').innerText = "VOTE !";
-                speak("C'est fini. Tout le monde vote au signal ! 3, 2, 1, Votez !");
+                speak("C'est terminé. Place au vote. Dans trois. deux. un. Votez !");
                 document.getElementById('defense-btn').disabled = false;
             }
             dTime--;
         }, 1000);
     }
+
+    // Pré-chargement des voix
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
 </html>
