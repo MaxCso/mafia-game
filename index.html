@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Immersion Silencieuse</title>
+    <title>MAFIA - Immersion Sonore</title>
     <style>
         :root { --red: #ff3131; --blue: #00d2ff; --purple: #bc13fe; --gold: #ffcf1b; --bg: #050505; }
         body { font-family: 'Courier New', Courier, monospace; background: var(--bg); color: #e0e0e0; text-align: center; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -21,7 +21,7 @@
         #big-timer { font-size: 5rem; color: var(--gold); font-weight: 900; margin: 20px 0; }
         .hidden { display: none; }
         #night-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        #night-names-display { color: #400; font-size: 1.2rem; margin-top: 20px; text-align: center; }
+        #night-names-display { color: #500; font-size: 1.1rem; margin-top: 20px; text-align: center; }
     </style>
 </head>
 <body>
@@ -40,9 +40,8 @@
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p style="color: #555;">IDENTIFICATION</p>
         <h2 id="target-name" style="font-size: 2.2rem; margin: 20px 0;">---</h2>
-        <button id="show-btn" class="btn-main" onclick="showRole()">VOIR MON RÔLE</button>
+        <button id="show-btn" class="btn-main" onclick="showRole()">OUVRIR DOSSIER</button>
         <div id="role-result" class="hidden">
             <div id="role-card" class="role-box"><span id="role-text">---</span></div>
             <button class="btn-main" onclick="nextStep()" style="background: #222;">JOUEUR SUIVANT</button>
@@ -50,16 +49,14 @@
     </div>
 
     <div id="master-screen" class="hidden">
-        <div class="role-box" style="border-style: dashed; font-size: 1.2rem;">
-            POSEZ LE TÉLÉPHONE AU CENTRE.
-        </div>
+        <div class="role-box" style="border-style: dashed; font-size: 1.2rem;">POSEZ LE TÉLÉPHONE.</div>
         <div id="big-timer" class="hidden">05:00</div>
-        <button class="btn-main hidden" id="defense-btn" onclick="startDefense()" style="background: var(--gold); color: #000;">🎤 DERNIÈRE PAROLE (15s)</button>
+        <button class="btn-main hidden" id="defense-btn" onclick="startDefense()" style="background: var(--gold); color: #000;">🎤 DERNIÈRE PAROLE</button>
     </div>
 </div>
 
 <div id="night-overlay" class="hidden">
-    <div id="night-instruction" style="color: #444; font-style: italic; margin-bottom: 20px;">Nuit en cours...</div>
+    <div id="night-instruction" style="color: #333; font-style: italic;">Silence...</div>
     <div id="night-names-display" class="hidden"></div>
 </div>
 
@@ -67,11 +64,36 @@
     let players = [];
     let currentIndex = 0;
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let ambientOsc = null;
+
+    // --- GENERATEUR DE SONS AMBIANTS ---
+    function startAmbientNoise(type = 'night') {
+        ambientOsc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        ambientOsc.connect(gain); gain.connect(audioCtx.destination);
+        ambientOsc.type = 'triangle';
+        ambientOsc.frequency.setValueAtTime(type === 'night' ? 40 : 60, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        ambientOsc.start();
+    }
+
+    function stopAmbientNoise() {
+        if(ambientOsc) { ambientOsc.stop(); ambientOsc = null; }
+    }
+
+    function playTone(f, d, gVal = 0.1, type='sine') {
+        let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.type = type; o.frequency.value = f;
+        g.gain.setValueAtTime(gVal, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
 
     function speak(text) {
         return new Promise(resolve => {
             const speech = new SpeechSynthesisUtterance(text);
-            speech.lang = 'fr-FR'; speech.pitch = 0.6; speech.rate = 0.8;
+            speech.lang = 'fr-FR'; speech.pitch = 0.6; speech.rate = 0.75;
             const voices = window.speechSynthesis.getVoices();
             const frVoice = voices.find(v => v.lang.startsWith('fr'));
             if (frVoice) speech.voice = frVoice;
@@ -80,20 +102,12 @@
         });
     }
 
-    function playTone(f, d, gVal = 0.1) {
-        let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.frequency.value = f; g.gain.setValueAtTime(gVal, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-        o.start(); o.stop(audioCtx.currentTime + d);
-    }
-
+    // --- LOGIQUE ---
     function addPlayer() {
         const div = document.createElement('div');
         div.className = 'input-group';
         div.innerHTML = `<input type="text" placeholder="JOUEUR" class="player-name">`;
         document.getElementById('player-list').appendChild(div);
-        playTone(150, 0.2);
     }
 
     function initGame() {
@@ -124,13 +138,8 @@
         document.getElementById('role-card').className = "role-box " + r.t;
         document.getElementById('role-result').classList.remove('hidden');
         document.getElementById('show-btn').classList.add('hidden');
-        
-        if (navigator.vibrate) {
-            if (r.t === 'mafia') navigator.vibrate([150, 100, 150]);
-            else if (r.t === 'undercover') navigator.vibrate(600);
-            else navigator.vibrate(50);
-        }
-        playTone(300, 0.4);
+        if (navigator.vibrate) r.t === 'mafia' ? navigator.vibrate([150, 100, 150]) : (r.t === 'undercover' ? navigator.vibrate(600) : navigator.vibrate(50));
+        playTone(200, 0.5);
     }
 
     function nextStep() {
@@ -143,32 +152,26 @@
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
         document.getElementById('night-overlay').classList.remove('hidden');
-
         const mafieuxNames = players.filter(p => p.role.t === 'mafia').map(p => p.name).join(' & ');
 
-        await speak("Le jeu commence. Posez le téléphone au centre.");
-        await speak("La nuit tombe sur la ville... Fermez tous les yeux.");
+        await speak("Posez le téléphone. La nuit tombe.");
+        startAmbientNoise('night');
+        await speak("Fermez tous les yeux.");
         
-        // Bruit de fond (battement) pour couvrir les bruits de mouvements
-        let heart = setInterval(() => playTone(55, 0.8, 0.1), 1800);
+        let heart = setInterval(() => playTone(50, 1.2, 0.15), 2000);
 
-        // MAFIA (Pas de noms prononcés !)
         await new Promise(r => setTimeout(r, 2000));
-        await speak("Mafieux... réveillez-vous. Regardez-vous discrètement pour vous reconnaître.");
-        
-        // Affichage très sombre sur l'écran au cas où
+        await speak("Mafieux... réveillez-vous. Regardez-vous discrètement.");
         const display = document.getElementById('night-names-display');
         display.innerText = "Complices : " + mafieuxNames;
         display.classList.remove('hidden');
-        
         await new Promise(r => setTimeout(r, 10000));
         display.classList.add('hidden');
-        await speak("Mafieux... fermez les yeux.");
+        await speak("Mafieux... rendormez-vous.");
 
-        // UNDERCOVER (Pas de noms prononcés !)
         if(players.some(p => p.role.t === 'undercover')) {
             await new Promise(r => setTimeout(r, 3000));
-            await speak("Infiltré... réveille-toi. Regarde l'écran pour identifier la menace.");
+            await speak("Infiltré... réveille-toi. Identifie tes cibles.");
             display.innerText = "Mafieux : " + mafieuxNames;
             display.classList.remove('hidden');
             await new Promise(r => setTimeout(r, 7000));
@@ -177,8 +180,9 @@
         }
 
         clearInterval(heart);
+        stopAmbientNoise();
         document.getElementById('night-overlay').classList.add('hidden');
-        await speak("Le soleil se lève ! Tout le monde se réveille. Le débat de cinq minutes commence.");
+        await speak("Le soleil se lève ! Tout le monde se réveille. Le débat commence.");
         startDebateTimer();
     }
 
@@ -186,13 +190,15 @@
         let time = 300; 
         const display = document.getElementById('big-timer');
         display.classList.remove('hidden');
-        const timer = setInterval(async () => {
+        startAmbientNoise('debate');
+        const timer = setInterval(() => {
             let m = Math.floor(time / 60), s = time % 60;
             display.innerText = `${m}:${s < 10 ? '0'+s : s}`;
-            if(time === 60) await speak("Il reste une minute.");
+            if(time === 60) speak("Une minute.");
             if(time === 0) {
                 clearInterval(timer);
-                await speak("Temps écoulé ! Votez ou demandez une défense finale.");
+                stopAmbientNoise();
+                speak("Temps écoulé !");
                 document.getElementById('defense-btn').classList.remove('hidden');
             }
             time--;
@@ -201,21 +207,21 @@
 
     async function startDefense() {
         document.getElementById('defense-btn').disabled = true;
-        playTone(600, 1, 0.3);
-        await speak("Tu as quinze secondes pour te défendre.");
+        playTone(100, 1.5, 0.4, 'square'); // GONG
+        await speak("Quinze secondes pour convaincre.");
         let dTime = 15;
         const dInterval = setInterval(() => {
             document.getElementById('big-timer').innerText = dTime;
+            playTone(60, 0.2, 0.1); // Battement rapide
             if(dTime <= 0) {
                 clearInterval(dInterval);
-                playTone(200, 1.5, 0.3);
-                speak("Temps écoulé ! Place au vote. Dans trois... deux... un... Votez !");
+                playTone(100, 2, 0.4, 'square'); // GONG FIN
+                speak("Votez ! 3... 2... 1... Votez !");
+                document.getElementById('defense-btn').disabled = false;
             }
             dTime--;
         }, 1000);
     }
-
-    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
 </html>
