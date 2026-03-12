@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="icon.jpg">
-<link rel="apple-touch-icon" href="icon.jpg">    
+    <link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO</title>
     <style>
         :root {
@@ -32,11 +32,19 @@
             width: 90%; max-width: 400px; padding: 30px;
             background: rgba(21, 21, 21, 0.9); border: 1px solid var(--border);
             box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
+            text-align: center;
+        }
+
+        /* Écran de démarrage obligatoire pour le son */
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
         }
 
         h1 {
             font-size: 2.5rem; color: var(--red); text-transform: uppercase;
-            letter-spacing: 15px; text-align: center; margin-bottom: 40px;
+            letter-spacing: 15px; margin-bottom: 40px;
             text-shadow: 3px 3px 0px #000;
         }
 
@@ -64,6 +72,7 @@
             width: 85%; padding: 15px; background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--border); color: var(--red);
             font-family: inherit; margin-bottom: 12px; font-size: 1rem;
+            outline: none;
         }
 
         button {
@@ -73,7 +82,8 @@
             cursor: pointer; transition: 0.3s; margin-top: 15px;
         }
 
-        .btn-main { background: rgba(26, 0, 0, 0.8); color: var(--red); border: 1px solid var(--red); }
+        button:hover { color: #fff; border-color: #fff; background: rgba(255,255,255,0.08); }
+        .btn-main { background: rgba(40, 0, 0, 0.8); color: var(--red); border: 1px solid var(--red); font-weight: bold; }
 
         #big-timer { font-size: 5rem; font-weight: bold; color: #fff; margin: 10px 0; }
 
@@ -97,9 +107,13 @@
 </head>
 <body>
 
+<div id="start-overlay">
+    <button class="btn-main" style="width: auto; padding: 30px 50px;" onclick="initAudio()">ACCÉDER AU COMMISSARIAT</button>
+</div>
+
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
 
-<div class="container" id="game-ui">
+<div class="container hidden" id="game-ui">
     <h1>EL MAFIOSO</h1>
 
     <div id="setup-screen">
@@ -109,7 +123,7 @@
             <input type="text" placeholder="NOM DU SUSPECT" class="player-name">
         </div>
         <button onclick="addInput()">+ AJOUTER UN JOUEUR</button>
-        <button class="btn-main" onclick="startGame(true)">DÉBUTER LA PARTIE</button>
+        <button class="btn-main" onclick="startGame()">DÉBUTER LA PARTIE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
@@ -119,7 +133,7 @@
             <div id="role-image" class="role-image-container"></div>
             <div class="role-data">
                 <div id="role-text" class="stamp">---</div>
-                <button onclick="nextStep()" style="margin-top: 25px;">FERMER LE DOSSIER</button>
+                <button onclick="nextStep()" style="margin-top: 25px; color: #333; border-color: #333;">FERMER LE DOSSIER</button>
             </div>
         </div>
     </div>
@@ -128,7 +142,7 @@
         <div id="big-timer">05:00</div>
         <div class="progress-container"><div id="progress-bar"></div></div>
         <div class="player-grid" id="elimination-list"></div>
-        <button onclick="addMinute()" style="color: var(--gold); border-color: var(--gold);">+ 1 MINUTE</button>
+        <button onclick="addMinute()" style="color: var(--gold); border-color: var(--gold); font-size: 0.7rem;">+ 1 MINUTE D'ENQUÊTE</button>
     </div>
 </div>
 
@@ -142,7 +156,6 @@
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const music = document.getElementById('bg-music');
 
-    // CONFIGURATION DE TES FICHIERS AUDIO
     const audioVoix = {
         debut: new Audio('voix-debut.mp3'),
         nuit: new Audio('voix-nuit.mp3'),
@@ -154,91 +167,73 @@
         vote: new Audio('voix-chrono-fin.mp3')
     };
 
-// Fonction pour lire tes fichiers MP3 avec baisse automatique de la musique
-function playVoice(key) {
-    return new Promise(resolve => {
-        if (audioVoix[key]) {
-            // 1. On baisse le volume de la musique d'ambiance à 5%
-            fadeMusic(0.05, 500); 
+    // --- GESTION SONORE ---
 
-            audioVoix[key].play().catch(e => console.log("Erreur audio:", e));
-            
-            audioVoix[key].onended = () => {
-                // 2. La voix est finie, on remonte le volume à 20% (ou ton volume habituel)
-                fadeMusic(0.2, 1000); 
-                resolve();
-            };
-        } else {
-            resolve();
-        }
-    });
-}
-
-// Fonction pour faire un fondu sonore (plus pro qu'une coupure brutale)
-function fadeMusic(targetVolume, duration) {
-    const startVolume = music.volume;
-    const diff = targetVolume - startVolume;
-    const steps = 20;
-    const stepTime = duration / steps;
-    let currentStep = 0;
-
-    const interval = setInterval(() => {
-        currentStep++;
-        music.volume = startVolume + (diff * (currentStep / steps));
-        if (currentStep >= steps) {
-            music.volume = targetVolume;
-            clearInterval(interval);
-        }
-    }, stepTime);
-}
-
-// --- MISE À JOUR DE LA FONCTION ELIMINATE (ROBOT) ---
-// On applique aussi la baisse de son pour la voix de robot
-async function eliminate(i) {
-    if(!players[i].alive) return;
-    players[i].alive = false; 
-    renderPlayers();
-    
-    // Baisse musique
-    fadeMusic(0.05, 500);
-    
-    playTone(100, 0.8);
-    await speakRobot(players[i].name + " était " + players[i].role.n);
-    
-    // Remonte musique
-    fadeMusic(0.2, 1000);
-
-    const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
-    if(aliveMafia === 0) {
-        fadeMusic(0.05, 500);
-        await speakRobot("La ville est nettoyée. La police gagne.");
-        location.reload();
+    function initAudio() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        music.volume = 0.2;
+        music.play();
+        document.getElementById('start-overlay').classList.add('hidden');
+        document.getElementById('game-ui').classList.remove('hidden');
     }
-}
+
+    function fadeMusic(targetVolume, duration) {
+        const startVolume = music.volume;
+        const diff = targetVolume - startVolume;
+        const steps = 20;
+        const stepTime = duration / steps;
+        let currentStep = 0;
+
+        const interval = setInterval(() => {
+            currentStep++;
+            music.volume = startVolume + (diff * (currentStep / steps));
+            if (currentStep >= steps) {
+                music.volume = targetVolume;
+                clearInterval(interval);
+            }
+        }, stepTime);
+    }
+
+    function playVoice(key) {
+        return new Promise(resolve => {
+            if (audioVoix[key]) {
+                fadeMusic(0.05, 500); 
+                audioVoix[key].play().catch(e => console.log("Erreur audio:", e));
+                audioVoix[key].onended = () => {
+                    fadeMusic(0.2, 1000); 
+                    resolve();
+                };
+            } else { resolve(); }
+        });
+    }
+
     function speakRobot(text) {
         return new Promise(resolve => {
+            fadeMusic(0.05, 500);
             const s = new SpeechSynthesisUtterance(text);
             s.lang = 'fr-FR'; s.pitch = 0.5; s.rate = 0.8;
-            s.onend = resolve;
+            s.onend = () => {
+                fadeMusic(0.2, 1000);
+                resolve();
+            };
             window.speechSynthesis.speak(s);
         });
     }
 
+    // --- LOGIQUE JEU ---
+
     function addInput() {
         const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'NOM'; input.className = 'player-name';
+        input.type = 'text'; input.placeholder = 'NOM DU SUSPECT'; input.className = 'player-name';
         document.getElementById('player-inputs').appendChild(input);
     }
 
-    async function startGame(first = false) {
-        if (first) {
-            const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-            if (names.length < 3) return alert("3 suspects minimum.");
-            window.playerPool = names;
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            music.volume = 0.2; music.play().catch(() => {});
-        }
-        let total = window.playerPool.length;
+    async function startGame() {
+        const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
+        if (names.length < 3) return alert("3 suspects minimum.");
+        
+        window.playerPool = names;
+        let total = names.length;
         let mCount = Math.max(1, Math.floor(total / 3));
         let uCount = (total >= 6) ? 1 : 0;
         let roles = [];
@@ -246,7 +241,8 @@ async function eliminate(i) {
         for(let i=0; i<uCount; i++) roles.push({n:'INFILTRÉ', t:'undercover'});
         while(roles.length < total) roles.push({n:'POLICE', t:'police'});
         roles.sort(() => Math.random() - 0.5);
-        players = window.playerPool.map((name, i) => ({ name, role: roles[i], alive: true }));
+
+        players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
         currentIndex = 0; timeLeft = 300;
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
@@ -319,7 +315,7 @@ async function eliminate(i) {
         }, 1000);
     }
 
-    function addMinute() { timeLeft += 60; startTimer(); }
+    function addMinute() { timeLeft += 60; }
 
     function renderPlayers() {
         const list = document.getElementById('elimination-list');
