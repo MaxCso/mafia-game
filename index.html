@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="icon.jpg">
     <link rel="apple-touch-icon" href="icon.jpg">    
-    <title>EL MAFIOSO</title>
+    <title>EL MAFIOSO - NOIR</title>
     <style>
         :root {
             --red: #ff3131; --border: #333; --paper: #e8dcc4;
@@ -154,11 +154,11 @@
 
     function initAudio() {
         music.volume = 0.2;
-        music.play();
+        music.play().catch(() => {});
         
-        // On pré-lance le son de nuit en muet
-        nightMusic.volume = 0;
-        nightMusic.play().catch(() => {});
+        // Pré-charge mais en pause
+        nightMusic.volume = 0.2;
+        nightMusic.pause();
 
         document.getElementById('start-overlay').classList.add('hidden');
         document.getElementById('game-ui').classList.remove('hidden');
@@ -166,8 +166,9 @@
 
     async function playVoice(key, durationFallback = 4000) {
         return new Promise((resolve) => {
-            const currentAmbience = isNightMode ? nightMusic : music;
-            currentAmbience.volume = 0;
+            // On met TOUT en pause pendant que la voix parle
+            music.pause();
+            nightMusic.pause();
 
             const snd = audioObj[key];
             let hasPlayed = false;
@@ -176,16 +177,16 @@
                 snd.load();
                 snd.play().then(() => { hasPlayed = true; }).catch(() => {});
                 snd.onended = () => {
-                    setTimeout(() => {
-                        currentAmbience.volume = 0.2;
-                        resolve();
-                    }, 500);
+                    // On relance la musique appropriée selon le mode
+                    if (isNightMode) nightMusic.play(); else music.play();
+                    resolve();
                 };
             }
             
+            // Sécurité : passage forcé si bug audio
             setTimeout(() => {
                 if (!hasPlayed || (snd && snd.paused)) {
-                    currentAmbience.volume = 0.2;
+                    if (isNightMode) nightMusic.play(); else music.play();
                     resolve();
                 }
             }, durationFallback);
@@ -223,7 +224,7 @@
     function showRole() {
         const r = players[currentIndex].role;
         document.getElementById('role-text').innerText = r.n;
-        // Vérifie bien que role-police.png existe sur GitHub
+        // Correction forcée du nom de l'image
         document.getElementById('role-image').style.backgroundImage = `url('role-${r.t}.png')`;
         document.getElementById('role-display').style.display = 'block';
         document.getElementById('show-btn').classList.add('hidden');
@@ -241,17 +242,19 @@
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
         
-        // BASCULE SONORE NUIT
+        // --- BASCULE RÉELLE NUIT ---
         isNightMode = true;
-        music.volume = 0;
-        nightMusic.volume = 0.2;
+        music.pause();
+        nightMusic.currentTime = 0;
+        nightMusic.play().catch(() => {});
 
         await playVoice('debut', 6000);
         await playVoice('nuit', 5000);
         await new Promise(r => setTimeout(r, 2000));
         
+        // APPEL MAFIEUX
         await playVoice('mafiaReveil', 6000);
-        await new Promise(r => setTimeout(r, 8000)); 
+        await new Promise(r => setTimeout(r, 10000)); // Augmenté à 10s pour être sûr
         await playVoice('mafiaDodo', 5000);
 
         if(players.some(p => p.role.t === 'undercover')) {
@@ -260,11 +263,11 @@
             await new Promise(r => setTimeout(r, 7000));
         }
 
-        // BASCULE SONORE JOUR
+        // --- BASCULE RÉELLE JOUR ---
         isNightMode = false;
-        nightMusic.volume = 0;
-        music.volume = 0.2;
+        nightMusic.pause();
         night.classList.add('hidden');
+        music.play().catch(() => {});
         
         await playVoice('jour', 5000);
         renderPlayers();
@@ -312,11 +315,12 @@
         players[i].alive = false;
         renderPlayers();
         
-        const currentAmbience = isNightMode ? nightMusic : music;
-        currentAmbience.volume = 0;
+        // Pause musique pour synthèse vocale
+        if (isNightMode) nightMusic.pause(); else music.pause();
+        
         const s = new SpeechSynthesisUtterance(players[i].name + " était " + players[i].role.n);
         s.lang = 'fr-FR'; 
-        s.onend = () => currentAmbience.volume = 0.2;
+        s.onend = () => { if (isNightMode) nightMusic.play(); else music.play(); };
         window.speechSynthesis.speak(s);
         
         if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
