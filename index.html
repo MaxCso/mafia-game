@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EL MAFIOSO</title>
+    <title>EL MAFIOSO - NOIR</title>
     <style>
         :root {
             --red: #ff3131; --border: #333; --paper: #e8dcc4;
@@ -24,64 +24,83 @@
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); z-index: 1;
+            transition: background 1s ease;
         }
 
+        /* Effet de tension (Halo rouge pulsant) */
+        @keyframes pulseTension {
+            0% { box-shadow: inset 0 0 50px rgba(255, 49, 49, 0.2); }
+            50% { box-shadow: inset 0 0 150px rgba(255, 49, 49, 0.5); }
+            100% { box-shadow: inset 0 0 50px rgba(255, 49, 49, 0.2); }
+        }
+        .tension-active { animation: pulseTension 2s infinite; }
+
         .container {
-            width: 85%; max-width: 380px; padding: 20px;
+            width: 85%; max-width: 380px; padding: 25px;
             background: rgba(15, 15, 15, 0.95); border: 1px solid var(--border);
             box-shadow: 0 0 50px rgba(0,0,0,1); position: relative; z-index: 2;
             border-radius: 8px; text-align: center;
         }
 
-        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; }
+        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 25px; text-shadow: 2px 2px 0px #000; }
 
         input {
             width: 90%; padding: 12px; background: #000; border: 1px solid var(--border);
-            color: var(--red); margin-bottom: 8px; border-radius: 4px; text-align: center; font-family: inherit;
+            color: var(--red); margin-bottom: 10px; border-radius: 4px; text-align: center; font-family: inherit;
         }
 
         button {
             width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border); color: #aaa;
-            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit;
+            text-transform: uppercase; cursor: pointer; border-radius: 4px; font-family: inherit; transition: 0.3s;
         }
 
-        .btn-main { background: #800000; color: white; border: 1px solid var(--red); font-weight: bold; margin-top: 10px; }
+        .btn-main { background: #6b0000; color: white; border: 1px solid var(--red); font-weight: bold; }
+        .btn-pause { background: rgba(255, 207, 27, 0.1); color: #ffcf1b; border-color: #ffcf1b; margin-top: 10px; width: 48%; display: inline-block; }
+        .btn-add { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border-color: #00d2ff; margin-top: 10px; width: 48%; display: inline-block; }
 
-        #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; }
+        #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; text-transform: uppercase; }
 
+        /* Dossier Style Photo Anthropométrique */
         #role-display {
             background: var(--paper); color: var(--text-dark);
-            margin: 20px 0; padding: 0; border-radius: 4px;
-            box-shadow: 10px 10px 30px rgba(0,0,0,0.5);
-            transform: rotate(-1deg); display: none;
+            margin: 20px 0; padding: 0; border-radius: 2px;
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.6);
+            transform: rotate(-1.5deg); display: none;
         }
-
         .role-image-container {
-            width: 150px; height: 150px; margin: 20px auto;
-            border: 6px solid #fff; background-size: cover; background-position: center;
+            width: 160px; height: 160px; margin: 25px auto 10px auto;
+            border: 8px solid #fff; background-size: cover; background-position: center;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+            filter: sepia(0.3) contrast(1.2); /* Effet vieille photo */
         }
-
         .stamp {
-            border: 4px solid #8a2a2a; color: #8a2a2a; padding: 8px 15px;
-            font-weight: bold; font-size: 1.4rem; text-transform: uppercase;
-            display: inline-block; transform: rotate(-10deg); margin-bottom: 20px;
+            border: 5px solid #8a2a2a; color: #8a2a2a; padding: 8px 18px;
+            font-weight: bold; font-size: 1.5rem; text-transform: uppercase;
+            display: inline-block; transform: rotate(-10deg); margin-bottom: 25px;
         }
 
-        #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; font-weight: bold; }
-        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.8rem; }
-        .player-card.dead { opacity: 0.2; text-decoration: line-through; }
+        /* Timer et Liste */
+        #big-timer { font-size: 4.5rem; color: #fff; margin: 10px 0; font-weight: bold; }
+        .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .player-card { padding: 15px; border: 1px solid var(--border); background: rgba(0,0,0,0.7); font-size: 0.9rem; font-weight: bold; }
+        .player-card.dead { opacity: 0.1; text-decoration: line-through; }
 
+        /* Overlays */
         .hidden { display: none !important; }
         #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
         .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
+        
+        /* Flash d'interrogatoire */
+        #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; opacity:0; pointer-events:none; }
     </style>
 </head>
 <body>
 
+<div id="flash"></div>
+
 <div id="start-overlay">
-    <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">LANCER LA PARTIE</button>
+    <button class="btn-main" style="width: auto; padding: 20px 50px;" onclick="initAudio()">LANCER LA PARTIE</button>
 </div>
 
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
@@ -91,31 +110,36 @@
 
     <div id="setup-screen">
         <div id="player-inputs">
-            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
-            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
-            <input type="text" placeholder="NOM DU JOUEUR" class="player-name">
+            <input type="text" placeholder="SUSPECT 1" class="player-name">
+            <input type="text" placeholder="SUSPECT 2" class="player-name">
+            <input type="text" placeholder="SUSPECT 3" class="player-name">
         </div>
-        <button onclick="addInput()">+ AJOUTER UN SUSPECT</button>
-        <button class="btn-main" onclick="startGame()">DÉBUTER L'ENQUÊTE</button>
+        <button onclick="addInput()" style="margin-top: 10px;">+ AJOUTER DOSSIER</button>
+        <button class="btn-main" onclick="startGame()" style="margin-top: 20px;">DÉBUTER L'ENQUÊTE</button>
     </div>
 
     <div id="reveal-screen" class="hidden">
-        <p style="color: #888; margin: 0;">DOSSIER DE :</p>
+        <p style="color: #666; margin: 0; font-size: 0.8rem; letter-spacing: 2px;">IDENTIFICATION REQUÉRUE</p>
         <span id="target-name">---</span>
         <button id="show-btn" class="btn-main" onclick="showRole()">CONSULTER LE DOSSIER</button>
         
         <div id="role-display">
-            <div style="font-size: 0.6rem; text-align: left; padding: 5px 10px; color:#555;">TOP SECRET // REF-992</div>
+            <div style="font-size: 0.6rem; text-align: left; padding: 5px 10px; color:#555; font-weight: bold;">CLASSIFIÉ // TOP SECRET</div>
             <div id="role-image" class="role-image-container"></div>
             <div id="role-text" class="stamp">---</div>
-            <button onclick="nextStep()" style="color:#000; border-color:#000; background:none; margin-bottom: 15px; width: 80%;">FERMER</button>
+            <button onclick="nextStep()" style="color:#000; border-color:#000; background:none; margin-bottom: 20px; width: 85%; font-weight: bold;">FERMER LE DOSSIER</button>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
         <div id="big-timer">05:00</div>
+        
+        <div style="display: flex; justify-content: space-between;">
+            <button id="pause-btn" class="btn-pause" onclick="togglePause()">PAUSE</button>
+            <button class="btn-add" onclick="addMinute()">+1 MIN</button>
+        </div>
+
         <div class="player-grid" id="elimination-list"></div>
-        <button onclick="addMinute()" style="margin-top:20px; color: #ffcf1b;">+ 1 MINUTE</button>
     </div>
 </div>
 
@@ -126,9 +150,9 @@
     let currentIndex = 0;
     let timeLeft = 300;
     let timerInterval = null;
+    let isPaused = false;
     const music = document.getElementById('bg-music');
 
-    // Pré-chargement des objets Audio
     const audioObj = {
         debut: new Audio('voix-debut.mp3'),
         nuit: new Audio('voix-nuit.mp3'),
@@ -147,43 +171,32 @@
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    // Fonction de lecture ultra-sécurisée
-    async function playVoice(key, durationFallback = 3000) {
-        return new Promise(async (resolve) => {
+    async function playVoice(key, durationFallback = 4000) {
+        return new Promise((resolve) => {
             music.pause();
             const snd = audioObj[key];
             let hasPlayed = false;
-
             if (snd) {
                 snd.currentTime = 0;
-                snd.play().then(() => { hasPlayed = true; }).catch(e => console.log("Play failed, switching to timer"));
-                
-                snd.onended = () => {
-                    music.play();
-                    resolve();
-                };
+                snd.play().then(() => { hasPlayed = true; }).catch(e => console.log("Audio block"));
+                snd.onended = () => { music.play(); resolve(); };
             }
-
-            // Sécurité : Si le son ne finit pas ou ne se lance pas, on attend la durée estimée
-            setTimeout(() => {
-                if (!hasPlayed || snd.paused) {
-                    music.play();
-                    resolve();
-                }
-            }, durationFallback);
+            setTimeout(() => { if (!hasPlayed || snd.paused) { music.play(); resolve(); } }, durationFallback);
         });
     }
 
     async function speakRobot(text) {
         music.pause();
         const s = new SpeechSynthesisUtterance(text);
-        s.lang = 'fr-FR'; s.onend = () => music.play();
+        s.lang = 'fr-FR'; s.rate = 0.85;
         window.speechSynthesis.speak(s);
+        s.onend = () => music.play();
     }
 
     function addInput() {
         const input = document.createElement('input');
-        input.type = 'text'; input.placeholder = 'NOM DU JOUEUR'; input.className = 'player-name';
+        input.type = 'text'; input.placeholder = 'SUSPECT ' + (document.querySelectorAll('.player-name').length + 1);
+        input.className = 'player-name';
         document.getElementById('player-inputs').appendChild(input);
     }
 
@@ -206,6 +219,7 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-display').style.display = 'none';
         document.getElementById('show-btn').classList.remove('hidden');
+        document.body.classList.remove('tension-active');
     }
 
     function showRole() {
@@ -223,19 +237,16 @@
     }
 
     async function startMasterMode() {
-        // Bloquer l'UI
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
-        
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
-
-        // Séquence chronométrée et sécurisée
-        await playVoice('debut', 6000); // Attend 6s si le son bug
+        
+        await playVoice('debut', 6000);
         await playVoice('nuit', 4000);
         await new Promise(r => setTimeout(r, 2000));
         await playVoice('mafiaReveil', 5000);
-        await new Promise(r => setTimeout(r, 8000)); // Temps de reconnaissance
+        await new Promise(r => setTimeout(r, 8000));
         await playVoice('mafiaDodo', 4000);
 
         if(players.some(p => p.role.t === 'undercover')) {
@@ -244,21 +255,32 @@
             await new Promise(r => setTimeout(r, 7000));
         }
 
-        // On libère l'écran AVANT de lancer le dernier son et le chrono
         night.classList.add('hidden');
         await playVoice('jour', 4000);
-        
         renderPlayers();
         startTimer();
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('pause-btn').innerText = isPaused ? "REPRENDRE" : "PAUSE";
+        document.getElementById('pause-btn').style.color = isPaused ? "var(--red)" : "#ffcf1b";
     }
 
     function startTimer() {
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
+            if (isPaused) return;
             timeLeft--;
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            if (timeLeft === 60) playVoice('soixante', 3000);
+            
+            // Effet de tension si < 1min
+            if (timeLeft <= 60) {
+                document.body.classList.add('tension-active');
+                if (timeLeft === 60) playVoice('soixante', 3000);
+            }
+            
             if (timeLeft <= 0) { clearInterval(timerInterval); playVoice('vote', 5000); }
         }, 1000);
     }
@@ -279,11 +301,18 @@
 
     async function eliminate(i) {
         if(!players[i].alive) return;
+        
+        // Effet flash
+        const flash = document.getElementById('flash');
+        flash.style.opacity = '1';
+        setTimeout(() => { flash.style.opacity = '0'; flash.style.transition = 'opacity 0.5s'; }, 50);
+
         players[i].alive = false;
         renderPlayers();
         await speakRobot(players[i].name + " était " + players[i].role.n);
+        
         if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
-            alert("LA POLICE GAGNE !");
+            alert("ENQUÊTE RÉUSSIE : LA MAFIA EST DERRIÈRE LES BARREAUX !");
             location.reload();
         }
     }
