@@ -27,7 +27,7 @@
             transition: background 1s ease;
         }
 
-        /* Effet de tension (Halo rouge pulsant) */
+        /* Animation de Tension (Halo rouge pulsant) */
         @keyframes pulseTension {
             0% { box-shadow: inset 0 0 50px rgba(255, 49, 49, 0.2); }
             50% { box-shadow: inset 0 0 150px rgba(255, 49, 49, 0.5); }
@@ -61,7 +61,7 @@
 
         #target-name { font-size: 2.2rem; color: #fff; margin: 15px 0; display: block; font-weight: bold; text-transform: uppercase; }
 
-        /* Dossier Style Photo Anthropométrique */
+        /* Dossier Style Photo */
         #role-display {
             background: var(--paper); color: var(--text-dark);
             margin: 20px 0; padding: 0; border-radius: 2px;
@@ -72,12 +72,12 @@
             width: 160px; height: 160px; margin: 25px auto 10px auto;
             border: 8px solid #fff; background-size: cover; background-position: center;
             box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
-            filter: sepia(0.3) contrast(1.2); /* Effet vieille photo */
+            filter: sepia(0.3) contrast(1.2);
         }
         .stamp {
             border: 5px solid #8a2a2a; color: #8a2a2a; padding: 8px 18px;
             font-weight: bold; font-size: 1.5rem; text-transform: uppercase;
-            display: inline-block; transform: rotate(-10deg); margin-bottom: 25px;
+            display: inline-block; transform: rotate(-12deg); margin-bottom: 25px;
         }
 
         /* Timer et Liste */
@@ -88,11 +88,29 @@
 
         /* Overlays */
         .hidden { display: none !important; }
+        
         #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000 url('splash.png') no-repeat center center;
+            background-size: cover; z-index: 1500;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease;
+        }
+
         .night-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000 url('bg-night.jpg') no-repeat center center; background-size: cover; z-index: 1000; }
         
         /* Flash d'interrogatoire */
         #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:3000; opacity:0; pointer-events:none; }
+        
+        /* Loader simple */
+        .loader {
+            width: 40px; height: 40px; border: 4px solid #333; border-top: 4px solid var(--red);
+            border-radius: 50%; animation: spin 1s linear infinite; margin-top: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -101,6 +119,11 @@
 
 <div id="start-overlay">
     <button class="btn-main" style="width: auto; padding: 20px 50px;" onclick="initAudio()">LANCER LA PARTIE</button>
+</div>
+
+<div id="splash-screen" class="hidden">
+    <h1 style="color:white;">TRANSFERT DES DOSSIERS...</h1>
+    <div class="loader"></div>
 </div>
 
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
@@ -133,12 +156,10 @@
 
     <div id="master-screen" class="hidden">
         <div id="big-timer">05:00</div>
-        
         <div style="display: flex; justify-content: space-between;">
             <button id="pause-btn" class="btn-pause" onclick="togglePause()">PAUSE</button>
             <button class="btn-add" onclick="addMinute()">+1 MIN</button>
         </div>
-
         <div class="player-grid" id="elimination-list"></div>
     </div>
 </div>
@@ -168,7 +189,18 @@
         music.volume = 0.2;
         music.play().catch(() => {});
         document.getElementById('start-overlay').classList.add('hidden');
-        document.getElementById('game-ui').classList.remove('hidden');
+        
+        // Affichage du Splash Screen
+        const splash = document.getElementById('splash-screen');
+        splash.classList.remove('hidden');
+        
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.classList.add('hidden');
+                document.getElementById('game-ui').classList.remove('hidden');
+            }, 1000);
+        }, 3000); // 3 secondes de chargement immersif
     }
 
     async function playVoice(key, durationFallback = 4000) {
@@ -275,7 +307,6 @@
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
             
-            // Effet de tension si < 1min
             if (timeLeft <= 60) {
                 document.body.classList.add('tension-active');
                 if (timeLeft === 60) playVoice('soixante', 3000);
@@ -301,8 +332,6 @@
 
     async function eliminate(i) {
         if(!players[i].alive) return;
-        
-        // Effet flash
         const flash = document.getElementById('flash');
         flash.style.opacity = '1';
         setTimeout(() => { flash.style.opacity = '0'; flash.style.transition = 'opacity 0.5s'; }, 50);
@@ -312,7 +341,7 @@
         await speakRobot(players[i].name + " était " + players[i].role.n);
         
         if(players.filter(p => p.alive && p.role.t === 'mafia').length === 0) {
-            alert("ENQUÊTE RÉUSSIE : LA MAFIA EST DERRIÈRE LES BARREAUX !");
+            alert("AFFAIRE CLASSÉE : LA POLICE GAGNE !");
             location.reload();
         }
     }
