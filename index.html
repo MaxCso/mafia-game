@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="icon" type="image/png" href="icon.jpg">
-    <link rel="apple-touch-icon" href="icon.jpg">    
     <title>EL MAFIOSO</title>
     <style>
         :root {
@@ -13,14 +11,10 @@
             --text-dark: #1a1a1a; --text-light: #d0d0d0;
         }
 
-        /* FOND ET CENTRAGE */
         body {
             font-family: 'Courier New', Courier, monospace;
-            background-color: #0a0a0a;
-            background-image: url('bg-main.png');
+            background: #0a0a0a url('bg-main.png') no-repeat center center fixed;
             background-size: cover;
-            background-position: center center;
-            background-attachment: fixed;
             color: var(--text-light);
             margin: 0; padding: 0;
             width: 100vw; height: 100vh;
@@ -40,7 +34,7 @@
             border-radius: 12px; text-align: center;
         }
 
-        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; text-align: center; }
+        h1 { font-size: 1.8rem; color: var(--red); letter-spacing: 8px; margin-bottom: 20px; }
 
         input {
             width: 90%; padding: 12px; background: rgba(0, 0, 0, 0.7);
@@ -56,7 +50,6 @@
 
         .btn-main { background: rgba(120, 0, 0, 0.8); color: white; border: 1px solid var(--red); font-weight: bold; }
 
-        /* TIMER ET CARTES */
         #big-timer { font-size: 4rem; color: #fff; margin: 10px 0; font-family: monospace; }
         .progress-container { width: 100%; height: 6px; background: #111; margin: 10px 0; }
         #progress-bar { width: 100%; height: 100%; background: var(--red); transition: width 1s linear; }
@@ -65,26 +58,23 @@
         .player-card { padding: 12px; border: 1px solid var(--border); background: rgba(0,0,0,0.6); font-size: 0.8rem; font-weight: bold; }
         .player-card.dead { opacity: 0.2; text-decoration: line-through; pointer-events: none; }
 
-        /* DOSSIER ROLE */
         #role-display {
             background: var(--paper); color: var(--text-dark); padding: 0;
             margin: 15px 0; box-shadow: 5px 5px 20px rgba(0,0,0,0.7);
             border-left: 10px solid #c5b595; border-radius: 5px; overflow: hidden;
         }
-        .role-image-container { width: 100%; height: 150px; background-size: cover; background-position: center; border-bottom: 1px solid #333; }
-        .role-data { padding: 15px; }
+        .role-image-container { width: 100%; height: 150px; background-size: cover; background-position: center; }
         .stamp { border: 3px solid #7a1a1a; color: #7a1a1a; padding: 5px 10px; font-weight: bold; font-size: 1.2rem; transform: rotate(-10deg); display: inline-block; margin: 10px 0; }
 
         .hidden { display: none !important; }
 
-        /* OVERLAYS */
         #start-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center;
         }
         .night-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('bg-night.jpg') no-repeat center center;
+            background: #000 url('bg-night.jpg') no-repeat center center;
             background-size: cover; z-index: 1000;
         }
     </style>
@@ -95,7 +85,7 @@
     <button class="btn-main" style="width: auto; padding: 20px 40px;" onclick="initAudio()">ACCÉDER AU COMMISSARIAT</button>
 </div>
 
-<audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
+<audio id="bg-music" loop preload="auto"><source src="ambiance.mp3" type="audio/mpeg"></audio>
 
 <div class="container hidden" id="game-ui">
     <h1>EL MAFIOSO</h1>
@@ -147,31 +137,34 @@
 
     function initAudio() {
         music.volume = 0.2;
-        music.play().catch(e => console.log("Audio play blocked"));
+        music.play().catch(() => {});
         document.getElementById('start-overlay').classList.add('hidden');
         document.getElementById('game-ui').classList.remove('hidden');
     }
 
-    // FONCTION VOIX OPTIMISÉE (PAUSE LA MUSIQUE POUR ÊTRE SÛR)
+    // FONCTION AUDIO NON-BLOQUANTE (SECURITE MAXIMUM)
     function playVoice(key) {
         return new Promise(resolve => {
-            if (!audioFiles[key]) return resolve();
-            
-            music.pause(); // Stop l'ambiance pour laisser place à la voix
+            console.log("Lecture de : " + key);
+            music.pause();
             const audio = new Audio(audioFiles[key]);
             
-            // Sécurité : si le son bug, on débloque après 10s
-            const safety = setTimeout(() => { music.play(); resolve(); }, 10000);
+            // Si le son ne finit pas en 12s (sécurité), on passe à la suite
+            const timeout = setTimeout(() => {
+                console.log("Timeout sur : " + key);
+                music.play();
+                resolve();
+            }, 12000);
 
             audio.play().then(() => {
                 audio.onended = () => {
-                    clearTimeout(safety);
-                    music.play(); // Reprend l'ambiance
+                    clearTimeout(timeout);
+                    music.play();
                     resolve();
                 };
             }).catch(e => {
-                console.log("Erreur voix: " + key);
-                clearTimeout(safety);
+                console.log("Erreur ou bloqué : " + key);
+                clearTimeout(timeout);
                 music.play();
                 resolve();
             });
@@ -205,6 +198,7 @@
         roles.sort(() => Math.random() - 0.5);
 
         players = names.map((name, i) => ({ name, role: roles[i], alive: true }));
+        currentIndex = 0;
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
         updateReveal();
@@ -223,7 +217,6 @@
         document.getElementById('role-text').innerText = r.n;
         img.style.backgroundImage = `url('role-${r.t}.png')`;
         
-        // Halo de couleur immersif
         if(r.t === 'mafia') document.body.style.boxShadow = "inset 0 0 100px rgba(255, 49, 49, 0.4)";
         else if(r.t === 'undercover') document.body.style.boxShadow = "inset 0 0 100px rgba(188, 19, 254, 0.3)";
         else document.body.style.boxShadow = "inset 0 0 100px rgba(0, 210, 255, 0.3)";
@@ -244,15 +237,16 @@
         const night = document.getElementById('night-overlay');
         night.classList.remove('hidden');
         
+        // Séquence chronométrée
         await playVoice('debut');
         await playVoice('nuit');
-        await new Promise(r => setTimeout(r, 1500));
+        await new Promise(r => setTimeout(r, 2000));
         await playVoice('mafiaReveil');
-        await new Promise(r => setTimeout(r, 8000));
+        await new Promise(r => setTimeout(r, 8000)); // Temps pour se regarder
         await playVoice('mafiaDodo');
 
         if(players.some(p => p.role.t === 'undercover')) {
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 2000));
             await playVoice('underReveil');
             await new Promise(r => setTimeout(r, 7000));
         }
