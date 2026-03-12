@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAFIA - Modern Edition</title>
+    <title>MAFIA - Modern Dark Edition</title>
     <style>
         :root {
             --white: #FFFFFF;
@@ -14,24 +14,52 @@
             --police-blue: #1CB0F6;
             --timer-gold: #FFC800;
             --success-green: #58CC02;
+            --bg-color: #F7F7F7;
+            --card-bg: #FFFFFF;
+            --input-bg: #F7F7F7;
+        }
+
+        /* Variables Mode Sombre */
+        body.dark-mode {
+            --bg-color: #131F24;
+            --card-bg: #1B292F;
+            --border-grey: #38464F;
+            --text-dark: #E5E5E5;
+            --light-grey: #131F24;
+            --input-bg: #1B292F;
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--light-grey);
+            background-color: var(--bg-color);
             color: var(--text-dark);
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            transition: background 0.5s ease;
+            transition: all 0.4s ease;
+        }
+
+        /* Toggle Mode Sombre */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--border-grey);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: none;
+            color: var(--text-dark);
         }
 
         .container {
             width: 90%;
             max-width: 420px;
-            background: var(--white);
+            background: var(--card-bg);
             border: 2px solid var(--border-grey);
             border-bottom: 6px solid var(--border-grey);
             border-radius: 20px;
@@ -43,14 +71,14 @@
 
         h1 { color: var(--police-blue); font-size: 2rem; margin-bottom: 20px; text-transform: lowercase; font-weight: 900; }
 
-        /* Inputs & Buttons Style Duolingo */
         input {
             width: 85%;
             padding: 15px;
             margin-bottom: 12px;
             border: 2px solid var(--border-grey);
             border-radius: 15px;
-            background: var(--light-grey);
+            background: var(--input-bg);
+            color: var(--text-dark);
             font-size: 1rem;
             outline: none;
         }
@@ -65,7 +93,7 @@
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: filter 0.2s, transform 0.1s;
+            transition: all 0.1s;
             margin-top: 10px;
         }
 
@@ -78,30 +106,25 @@
         }
 
         .btn-secondary {
-            background-color: var(--white);
+            background-color: var(--card-bg);
             color: #afafaf;
             border: 2px solid var(--border-grey);
             border-bottom: 4px solid var(--border-grey);
         }
 
-        /* Dossier Confidentiel */
+        /* Dossier Confidentiel (s'adapte au mode sombre) */
         .folder {
             background: #FFF9E5;
             border: 2px solid #F0D58E;
+            color: #4B4B4B;
             border-radius: 10px;
             padding: 40px 20px;
-            position: relative;
             margin: 20px 0;
             box-shadow: 0 4px 0 #F0D58E;
             animation: openFolder 0.5s ease;
         }
 
-        @keyframes openFolder {
-            from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
-            to { transform: scale(1) rotate(0); opacity: 1; }
-        }
-
-        /* Timer & Jauge */
+        /* Jauge */
         .timer-container {
             width: 100%;
             height: 15px;
@@ -115,38 +138,38 @@
             width: 100%;
             height: 100%;
             background: var(--success-green);
-            transition: width 1s linear, background 0.3s;
+            transition: width 1s linear;
         }
 
         #big-timer { font-size: 3.5rem; font-weight: 900; margin: 10px 0; }
 
-        /* Joueurs Liste */
+        /* Liste des joueurs */
         .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .player-tile {
-            background: var(--white);
+            background: var(--card-bg);
             border: 2px solid var(--border-grey);
             border-bottom: 4px solid var(--border-grey);
             padding: 15px;
             border-radius: 15px;
             font-weight: bold;
         }
-        .player-tile.dead { background: #eee; color: #bbb; text-decoration: line-through; border-bottom: 2px solid #ddd; }
+        .player-tile.dead { opacity: 0.3; text-decoration: line-through; }
 
-        /* Animations Nuit/Jour */
-        .sky-icon { font-size: 4rem; margin: 20px; transition: all 1s ease; }
         .hidden { display: none !important; }
 
-        /* Mode "Baigné" dans la couleur */
+        /* Modes Couleurs Pleines */
         .bg-mafia { background-color: var(--mafia-red) !important; color: white !important; }
         .bg-police { background-color: var(--police-blue) !important; color: white !important; }
     </style>
 </head>
 <body id="body-bg">
 
+<button class="theme-toggle" onclick="toggleTheme()">🌙 MODE SOMBRE</button>
+
 <audio id="bg-music" loop><source src="ambiance.mp3" type="audio/mpeg"></audio>
 
-<div class="container" id="main-container">
-    <h1 id="ui-title">mafia</h1>
+<div class="container">
+    <h1>mafia</h1>
 
     <div id="setup-screen">
         <div id="player-inputs">
@@ -166,12 +189,12 @@
             <div id="role-folder" class="folder">
                 <span id="role-text" style="font-size: 1.5rem; font-weight: 900;">---</span>
             </div>
-            <button class="btn-primary" onclick="nextStep()" style="background:white; color:var(--text-dark)">compris</button>
+            <button class="btn-primary" onclick="nextStep()" style="background:var(--card-bg); color:var(--text-dark)">compris</button>
         </div>
     </div>
 
     <div id="master-screen" class="hidden">
-        <div id="sky-anim" class="sky-icon">☀️</div>
+        <div id="sky-anim" style="font-size: 4rem; margin: 20px;">☀️</div>
         <div class="timer-container"><div id="timer-bar"></div></div>
         <div id="big-timer">05:00</div>
         <button class="btn-secondary" onclick="addMinute()">+ 1 minute</button>
@@ -188,10 +211,16 @@
     let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const music = document.getElementById('bg-music');
 
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.querySelector('.theme-toggle').innerText = isDark ? "☀️ MODE CLAIR" : "🌙 MODE SOMBRE";
+    }
+
     function speak(text) {
         return new Promise(resolve => {
             const s = new SpeechSynthesisUtterance(text);
-            s.lang = 'fr-FR'; s.pitch = 1; s.rate = 0.8;
+            s.lang = 'fr-FR'; s.pitch = 1; s.rate = 0.85;
             s.onend = resolve;
             window.speechSynthesis.speak(s);
             setTimeout(resolve, text.length * 80 + 1500);
@@ -207,27 +236,23 @@
     async function startGame(first = false) {
         if (first) {
             const names = Array.from(document.querySelectorAll('.player-name')).map(i => i.value.trim()).filter(n => n !== "");
-            if (names.length < 3) return alert("Il faut au moins 3 joueurs !");
+            if (names.length < 3) return alert("Minimum 3 joueurs !");
             window.playerPool = names;
             if (audioCtx.state === 'suspended') audioCtx.resume();
             music.play().catch(() => {});
         }
-
         let mCount = Math.max(1, Math.floor(window.playerPool.length / 3));
         let roles = [];
         for(let i=0; i<mCount; i++) roles.push({n:'Mafieux 🔫', t:'mafia'});
         while(roles.length < window.playerPool.length) roles.push({n:'Policier 👮‍♂️', t:'police'});
         roles.sort(() => Math.random() - 0.5);
-
         players = window.playerPool.map((name, i) => ({ name, role: roles[i], alive: true }));
         currentIndex = 0;
-        timeLeft = 300;
-        totalTime = 300;
+        timeLeft = 300; totalTime = 300;
 
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.add('hidden');
         document.getElementById('reveal-screen').classList.remove('hidden');
-        document.body.className = "";
         updateReveal();
     }
 
@@ -235,7 +260,7 @@
         document.getElementById('target-name').innerText = players[currentIndex].name;
         document.getElementById('role-result').classList.add('hidden');
         document.getElementById('show-btn').classList.remove('hidden');
-        document.body.className = "";
+        document.body.classList.remove('bg-mafia', 'bg-police');
     }
 
     function showRole() {
@@ -243,9 +268,7 @@
         document.getElementById('role-text').innerText = r.n;
         document.getElementById('role-result').classList.remove('hidden');
         document.getElementById('show-btn').classList.add('hidden');
-        
-        // Effet d'immersion couleur
-        document.body.className = (r.t === 'mafia') ? "bg-mafia" : "bg-police";
+        document.body.classList.add(r.t === 'mafia' ? 'bg-mafia' : 'bg-police');
     }
 
     function nextStep() {
@@ -258,19 +281,14 @@
         document.getElementById('reveal-screen').classList.add('hidden');
         document.getElementById('master-screen').classList.remove('hidden');
         document.getElementById('sky-anim').innerText = "🌙";
-        document.body.style.backgroundColor = "#111";
-
         await speak("La nuit commence. Fermez les yeux.");
         await new Promise(r => setTimeout(r, 2000));
         await speak("Mafieux, réveillez-vous et reconnaissez-vous.");
         await new Promise(r => setTimeout(r, 8000));
         await speak("Mafieux, rendormez-vous.");
-        
         document.getElementById('sky-anim').innerText = "☀️";
-        document.body.style.backgroundColor = "var(--light-grey)";
         await speak("Le soleil se lève ! Trouvez le traître.");
-        renderPlayers();
-        startTimer();
+        renderPlayers(); startTimer();
     }
 
     function startTimer() {
@@ -278,30 +296,16 @@
         timerInterval = setInterval(() => {
             let m = Math.floor(timeLeft / 60), s = timeLeft % 60;
             document.getElementById('big-timer').innerText = `${m}:${s < 10 ? '0' + s : s}`;
-            
-            // Jauge et couleur du fond
             let percent = (timeLeft / totalTime) * 100;
             const bar = document.getElementById('timer-bar');
             bar.style.width = percent + "%";
-            
-            if(percent < 30) {
-                bar.style.background = "var(--mafia-red)";
-                document.body.style.backgroundColor = `rgba(255, 75, 75, ${0.3 - (percent/100)})`;
-            }
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                speak("Temps écoulé ! Votez !");
-            }
+            if(percent < 30) bar.style.background = "var(--mafia-red)";
+            if (timeLeft <= 0) { clearInterval(timerInterval); speak("Temps écoulé ! Votez !"); }
             timeLeft--;
         }, 1000);
     }
 
-    function addMinute() {
-        timeLeft += 60;
-        totalTime = Math.max(totalTime, timeLeft);
-        startTimer();
-    }
+    function addMinute() { timeLeft += 60; totalTime = Math.max(totalTime, timeLeft); startTimer(); }
 
     function renderPlayers() {
         const list = document.getElementById('elimination-list');
@@ -317,17 +321,11 @@
 
     async function eliminate(i) {
         if(!players[i].alive) return;
-        players[i].alive = false;
-        renderPlayers();
+        players[i].alive = false; renderPlayers();
         await speak(players[i].name + " était " + players[i].role.n);
-        
         const aliveMafia = players.filter(pl => pl.alive && pl.role.t === 'mafia').length;
-        if(aliveMafia === 0) {
-            await speak("La police gagne !");
-            location.reload(); 
-        }
+        if(aliveMafia === 0) { await speak("La police gagne !"); location.reload(); }
     }
 </script>
-
 </body>
 </html>
